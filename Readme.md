@@ -7,7 +7,7 @@
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-blue?style=flat-square)]()
 [![No Backend](https://img.shields.io/badge/No%20Backend-100%25%20Client-brightgreen?style=flat-square)]()
 
-**Dein Lastenrad-Navi: Ohne App Store, ohne Backend, ohne Datensammlung.**
+**Dein Lastenrad-Navi: Ohne App Store, ohne Backend, ohne Datensammlung und vor allem ohne Kosten.**
 
 </div>
 
