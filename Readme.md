@@ -1,6 +1,6 @@
-# 🚲 KreherNavi — Cargo Bike Navigation System
+<div align="center"># 🚲 KreherNavi — Cargo Bike Navigation System
 
-<div align="center">
+
 
 **Satellitengestützte Fahrrad-Navigation für Lastenräder & Co.**
 
