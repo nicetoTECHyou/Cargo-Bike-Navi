@@ -105,9 +105,7 @@ Alle Fahrzeugmarker wurden von einfachen SVGs auf hochwertige Base64-PNGs umgest
 
 Begleite **Rene Kreher** live bei seinen Projekten und Reisen:
 
-> ### [➔ Jetzt auf Twitch zuschauen: twitch.tv/renekreher](https://www.twitch.tv/renekreher)
-> [![ReneKreher Twitch](https://img.shields.io/badge/renekreher-OFFLINE-gray?style=flat-square&logo=twitch)](https://www.twitch.tv/renekreher) 
-> *(Hinweis: Der Badge-Status aktualisiert sich automatisch bei Klick)*
+[![Twitch Status](https://img.shields.io/badge/Live_auf-Twitch-purple?style=for-the-badge&logo=twitch&logoColor=white)](https://www.twitch.tv/renekreher)
 
 **Datenquellen:**
 
