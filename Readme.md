@@ -91,7 +91,7 @@ Alle Fahrzeugmarker wurden von einfachen SVGs auf hochwertige Base64-PNGs umgest
 | **DeLorean 🔥** | **Flux Mode:** Blitze & Flammenspuren | ⚡ Neon Blue / Orange |
 
 > [\!TIP]
-> **Easter Egg:** Bei einer Geschwindigkeit von **\>88 km/h** wechselt der DeLorean-Marker automatisch in den flammenden Flux-Modus inkl. Cyan-Glow UI\!
+> **Easter Egg:** NEEDS FIX - Bei einer Geschwindigkeit von **\>88 km/h** wechselt der DeLorean-Marker automatisch in den flammenden Flux-Modus inkl. Cyan-Glow UI\! 
 
 > [\!WARNING]
 > **Known Issues:** Aktuell ist nur `FRANKY` ein finales Top-Down Modell. Die anderen Marker werden in der nächsten Version noch verfeinert.
