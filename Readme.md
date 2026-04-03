@@ -162,26 +162,55 @@ Hier ist der formatierte Text für dein GitHub-Changelog oder deine `README.md`.
 
 ---
 
-## 🛠 Changelog
+Hier ist die strukturierte GitHub-Formatierung für deinen Release oder Commit. Ich habe Markdown-Tabellen und Code-Highlights verwendet, um die technischen Details sauber darzustellen.
 
-### ⚠️ Known Issues
-* **Models:** Only `FRANKY` is currently a Top Down Model. (Fix scheduled for next version)
+---
 
-### ✅ Fixed
-#### 🔒 Security
-- [x] **XSS:** Fixed vulnerability via unsanitized OSM data in popups.
-- [x] **XSS:** Fixed vulnerability in `buildAddToRouteButtons()`.
-- [x] **Injection:** Fixed `javascript:` URL injection via `props.website`.
+## 🚀 Vehicle Marker Overhaul & DeLorean "Flux" Update
 
-#### 🧩 Logic & Core
-- [x] **Navigation:** Resolved unreachable code in turn detection (Abbiege-Erkennung).
-- [x] **Simulation:** Corrected `simSpeed` initial value (changed from `1` to `30`).
-- [x] **i18n:** Added missing key `end_set`.
+### ✅ All Vehicle Marker Images Created & Integrated
 
-#### 📱 UI / UX
-- [x] **UI:** Restored visibility of the Alternative Routes Panel after stopping navigation.
-- [x] **GPS:** Fixed `easeTo` queuing issues during high-frequency updates.
-- [x] **Mobile:** Corrected CSS positioning for `view-controls` (`right: 230px`).
+**🖼️ New Top-Down Map Markers:**
+
+| Vehicle | Description | Style |
+| :--- | :--- | :--- |
+| **Mountain Bike** | Top-down view with wide knobby tires, suspension fork | 🟠 Orange & Dark Gray |
+| **Racing Bike** | Top-down view with thin aero tires, drop handlebars | 🔴 Red & Carbon Black |
+| **DeLorean DMC-12** | Stainless steel body, gull-wing doors | 🔘 Silver & Gray (Blue Windows) |
+| **DeLorean 🔥 Flux** | Special mode with lightning bolts & burning tire marks | ⚡ Silver + Neon Blue/Orange |
+
+### 🛠 Technical Changes (`navigation_v3.html`)
+* **Asset Migration:** Replaced simple SVG markers with high-quality base64 PNG images (matching the `FRANKY` cargo bike style).
+* **Dynamic Swapping:** Added `DELOREAN_FLAME_IMG` & `DELOREAN_NORMAL_IMG` constants for seamless state transitions.
+* **88 mph Easter Egg:** Complete overhaul. The entire marker image now swaps to the "Flame" version instead of a simple CSS toggle—much more dramatic!
+* **UI Glow:** Added a dual-layer cyan glow effect on the speed display when hitting **88+ km/h**.
+* **Refactoring:** Removed old `fire-trail` div logic; added a full state reset when switching vehicles.
+
+---
+
+## 📋 Changelog
+**[2026-04-04] - Vehicle Marker Image Overhaul**
+
+### ✨ New Features
+* **High-Res Markers:** Mountain Bike, Racing Bike, and DeLorean now use high-quality rendered top-down images instead of simple SVG line drawings.
+
+### ⚡ Enhanced
+* **DeLorean "Back to the Future" Effect:**
+    * Marker image swaps to a dramatic flame/lightning version at **88+ km/h**.
+    * Added blue-white lightning trails and burning tire marks directly to the vehicle icon.
+    * Speed display border and text get an enhanced **cyan neon glow**.
+* **CSS:** Added `img` element support alongside SVG for consistent drop-shadow styling.
+
+### 🔄 Changed
+* `getVehicleSVG()` now returns `<img>` tags with embedded base64 PNGs for all new models.
+* Simplified the DOM by removing the old CSS-based fire-trail approach.
+* Upgraded speed display glow to a cinematic double-layer shadow.
+
+### 📂 Files Modified
+* `navigation_v3.html` (All-in-one update)
+
+---
+**Note:** Only `navigation_v3.html` needs to be deployed for this version.
 ---
 
 <div align="center">
