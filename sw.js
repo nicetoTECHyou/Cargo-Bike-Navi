@@ -1,0 +1,66 @@
+// KreherNavi — Service Worker v1
+const CACHE_NAME = 'krehernavi-v2';
+
+// Files to pre-cache on install
+const PRECACHE_URLS = [
+    './',
+    './navigation_v3.html',
+    './icon-192.png',
+    './icon-512-final.png',
+    './manifest.json'
+];
+
+// Install: pre-cache essential files
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(PRECACHE_URLS).catch(err => {
+                console.log('Precache failed:', err);
+            });
+        })
+    );
+    self.skipWaiting();
+});
+
+// Activate: clean old caches
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(keys =>
+            Promise.all(
+                keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+            )
+        )
+    );
+    event.waitUntil(clients.claim());
+});
+
+// Fetch: network-first, fallback to cache
+self.addEventListener('fetch', event => {
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') return;
+
+    // Skip API calls (routing, geocoding, POIs) — always network
+    const url = new URL(event.request.url);
+    if (url.hostname.includes('brouter.de') ||
+        url.hostname.includes('routing.openstreetmap.de') ||
+        url.hostname.includes('nominatim.openstreetmap.org') ||
+        url.hostname.includes('overpass-api.de') ||
+        url.hostname.includes('tile.openstreetmap.org') ||
+        url.hostname.includes('server.arcgisonline.com') ||
+        url.hostname.includes('services.arcgisonline.com')) {
+        return;
+    }
+
+    event.respondWith(
+        fetch(event.request)
+            .then(response => {
+                // Cache successful responses
+                if (response.ok) {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                }
+                return response;
+            })
+            .catch(() => caches.match(event.request))
+    );
+});
