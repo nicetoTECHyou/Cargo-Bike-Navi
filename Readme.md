@@ -156,17 +156,30 @@ Dieses Projekt nutzt die folgenden Dienste und Datenquellen:
 - 🛰️ Satellitenbilder: [ESRI](https://www.esri.com/) (Lizenz siehe [ESRI Terms](https://www.esri.com/en-us/legal/terms/terms-of-use))
 
 ---
-KNOWN BUGS : Only FRANKY is a Top Down Model .. Fix in next version 
+Hier ist der formatierte Text für dein GitHub-Changelog oder deine `README.md`. Ich habe ein sauberes Layout mit Checkboxen und Kategorien gewählt, damit es auf einen Blick professionell aussieht.
 
-Fixed: XSS via unsanierte OSM-Daten in Popups
-Fixed: XSS in buildAddToRouteButtons()
-Fixed: javascript: URL Injection via props.website
-Fixed: Abbiege-Erkennung — unreachable code
-Fixed: simSpeed Initialwert falsch (1 statt 30)
-Fixed: Fehlender i18n-Key 'end_set'
-Fixed: Alt-Routen-Panel nicht wieder sichtbar nach Nav-Stopp
-Fixed: GPS easeTo queued auf schnellen Updates
-Fixed: view-controls right:230px auf Mobile
+---
+
+## 🛠 Changelog
+
+### ⚠️ Known Issues
+* **Models:** Only `FRANKY` is currently a Top Down Model. (Fix scheduled for next version)
+
+### ✅ Fixed
+#### 🔒 Security
+- [x] **XSS:** Fixed vulnerability via unsanitized OSM data in popups.
+- [x] **XSS:** Fixed vulnerability in `buildAddToRouteButtons()`.
+- [x] **Injection:** Fixed `javascript:` URL injection via `props.website`.
+
+#### 🧩 Logic & Core
+- [x] **Navigation:** Resolved unreachable code in turn detection (Abbiege-Erkennung).
+- [x] **Simulation:** Corrected `simSpeed` initial value (changed from `1` to `30`).
+- [x] **i18n:** Added missing key `end_set`.
+
+#### 📱 UI / UX
+- [x] **UI:** Restored visibility of the Alternative Routes Panel after stopping navigation.
+- [x] **GPS:** Fixed `easeTo` queuing issues during high-frequency updates.
+- [x] **Mobile:** Corrected CSS positioning for `view-controls` (`right: 230px`).
 ---
 
 <div align="center">
