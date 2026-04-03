@@ -158,13 +158,6 @@ Dieses Projekt nutzt die folgenden Dienste und Datenquellen:
 - 🛰️ Satellitenbilder: [ESRI](https://www.esri.com/) (Lizenz siehe [ESRI Terms](https://www.esri.com/en-us/legal/terms/terms-of-use))
 
 ---
-Hier ist der formatierte Text für dein GitHub-Changelog oder deine `README.md`. Ich habe ein sauberes Layout mit Checkboxen und Kategorien gewählt, damit es auf einen Blick professionell aussieht.
-
----
-
-Hier ist die strukturierte GitHub-Formatierung für deinen Release oder Commit. Ich habe Markdown-Tabellen und Code-Highlights verwendet, um die technischen Details sauber darzustellen.
-
----
 
 ## 🚀 Vehicle Marker Overhaul & DeLorean "Flux" Update
 
@@ -188,6 +181,9 @@ Hier ist die strukturierte GitHub-Formatierung für deinen Release oder Commit. 
 
 ---
 
+⚠️ Known Issues
+Models: Only FRANKY is currently a nice Top Down Model other 3 are placeholders. (Fix scheduled for next version)
+
 ## 📋 Changelog
 **[2026-04-04] - Vehicle Marker Image Overhaul**
 
@@ -209,9 +205,6 @@ Hier ist die strukturierte GitHub-Formatierung für deinen Release oder Commit. 
 ### 📂 Files Modified
 * `navigation_v3.html` (All-in-one update)
 
----
-**Note:** Only `navigation_v3.html` needs to be deployed for this version.
----
 
 <div align="center">
 
