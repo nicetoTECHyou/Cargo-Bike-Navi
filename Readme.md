@@ -154,6 +154,8 @@ Dieses Projekt nutzt die folgenden Dienste und Datenquellen:
 - 🛰️ Satellitenbilder: [ESRI](https://www.esri.com/) (Lizenz siehe [ESRI Terms](https://www.esri.com/en-us/legal/terms/terms-of-use))
 
 ---
+KNOWN BUGS : Only FRANKY is a Top Down Model .. Fix in next version 
+---
 
 <div align="center">
 
