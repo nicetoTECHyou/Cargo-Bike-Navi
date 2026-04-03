@@ -2,8 +2,6 @@
 
 <div align="center">
 
-![KreherNavi](icon-512.png#gh-dark-mode-only)
-
 **Satellitengestützte Fahrrad-Navigation für Lastenräder & Co.**
 
 [![PWA](https://img.shields.io/badge/PWA-Ready-green?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
