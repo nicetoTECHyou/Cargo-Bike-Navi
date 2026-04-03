@@ -2,8 +2,8 @@
 const CACHE_NAME = 'krehernavi-v2';
 
 // Files to pre-cache on install
+// NOTE: Do NOT include './' — GitHub Pages has no index.html and would return 404
 const PRECACHE_URLS = [
-    './',
     './navigation_v3.html',
     './icon-192.png',
     './icon-512-final.png',
@@ -61,6 +61,13 @@ self.addEventListener('fetch', event => {
                 }
                 return response;
             })
-            .catch(() => caches.match(event.request))
+            .catch(() => {
+                // Offline fallback: try cache, then serve navigation page
+                return caches.match(event.request).then(cached => {
+                    if (cached) return cached;
+                    // If anything fails, serve the main app page
+                    return caches.match('./navigation_v3.html');
+                });
+            })
     );
 });
