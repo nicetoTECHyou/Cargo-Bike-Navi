@@ -1,4 +1,4 @@
-# 🚜 KreherNavi — Cargo Bike Navigation System
+# 🚲 KreherNavi — Cargo Bike Navigation System
 
 <div align="center">
 
