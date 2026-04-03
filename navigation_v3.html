@@ -386,7 +386,7 @@
         /* MOBILE RESPONSIVE                            */
         /* ============================================ */
         @media(max-width:768px){
-            #sidebar { position:absolute; left:-340px; z-index:30; transition:left 0.3s; touch-action:none; }
+            #sidebar { position:absolute; left:-340px; z-index:30; transition:left 0.3s; touch-action:pan-y; }
             #sidebar.open { left:0; }
             .mobile-toggle { display:flex !important; }
             .sidebar-close-btn { display:flex !important; }
@@ -1383,9 +1383,8 @@
             }
         });
 
-        // Tourist attraction popups
-        map.on('click', 'tourist-attractions-circles', (e) => {
-            e.originalEvent.stopPropagation();
+        // Tourist attraction popups (circles + labels — both clickable)
+        function touristPopupHandler(e) {
             const props = e.features[0].properties;
             const coords = e.features[0].geometry.coordinates;
             const popupContent = buildTouristPopupHTML(props) + buildAddToRouteButtons(coords[1], coords[0], props.name);
@@ -1393,11 +1392,12 @@
                 .setLngLat(e.lngLat)
                 .setHTML(popupContent)
                 .addTo(map);
-        });
+        }
+        map.on('click', 'tourist-attractions-circles', touristPopupHandler);
+        map.on('click', 'tourist-attractions-labels', touristPopupHandler);
 
         // Charging station popups
         map.on('click', 'charging-stations-circles', (e) => {
-            e.originalEvent.stopPropagation();
             const props = e.features[0].properties;
             const coords = e.features[0].geometry.coordinates;
             const popupContent = buildChargingPopupHTML(props) + buildAddToRouteButtons(coords[1], coords[0], props.name);
@@ -1409,7 +1409,6 @@
 
         // Camping place popups
         map.on('click', 'camping-circles', (e) => {
-            e.originalEvent.stopPropagation();
             const props = e.features[0].properties;
             const coords = e.features[0].geometry.coordinates;
             const popupContent = buildCampingPopupHTML(props) + buildAddToRouteButtons(coords[1], coords[0], props.name);
@@ -1650,6 +1649,8 @@
         // Remove waypoint: long-press (mobile) or right-click (desktop)
         function removeThisWaypoint() {
             if (state.isNavigating) return;
+            state._waypointJustRemoved = true;
+            setTimeout(() => { state._waypointJustRemoved = false; }, 500);
             marker.remove();
             const idx = state.waypoints.findIndex(w => w.marker === marker);
             if (idx >= 0) state.waypoints.splice(idx, 1);
@@ -1700,6 +1701,14 @@
     function onMapClick(e) {
         // Don't add waypoints while actively navigating — prevent accidental route changes
         if (state.isNavigating) return;
+
+        // Skip if click landed on a POI feature (charging, camping, tourist)
+        const poiLayers = ['charging-stations-circles', 'camping-circles', 'tourist-attractions-circles', 'tourist-attractions-labels'];
+        const hitFeatures = map.queryRenderedFeatures(e.point, { layers: poiLayers });
+        if (hitFeatures.length > 0) return;
+
+        // Skip if a waypoint was just removed via long-press (prevents instant re-add)
+        if (state._waypointJustRemoved) { state._waypointJustRemoved = false; return; }
 
         // If we have start but no end, set end. If we have both, add via point.
         const hasStart = state.waypoints.some(w => w.type === 'start');
