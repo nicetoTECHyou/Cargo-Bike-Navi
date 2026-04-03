@@ -388,6 +388,8 @@
         @media(max-width:768px){
             #sidebar { position:absolute; left:-340px; z-index:30; transition:left 0.3s; display:block; overflow-y:auto; -webkit-overflow-scrolling:touch; }
             #sidebar.open { left:0; }
+            #view-controls { right:14px !important; }
+            #search-panel { right:60px !important; }
             .mobile-toggle { display:flex !important; }
             .sidebar-close-btn { display:flex !important; }
         }
@@ -899,6 +901,7 @@
             // Toast messages
             'welcome':          { de: 'Willkommen bei KreherNavi! Klicke auf die Karte um deine Route zu setzen. 🚲', en: 'Welcome to KreherNavi! Click the map to set your route. 🚲' },
             'start_set':        { de: 'Startpunkt gesetzt. Klicke für das Ziel.', en: 'Start point set. Click to set destination.' },
+            'end_set':          { de: 'Ziel gesetzt', en: 'Destination set' },
             'via_added':        { de: 'Via-Punkt hinzugefügt. Lang drücken zum Entfernen.', en: 'Via point added. Long-press to remove.' },
             'start_removed':    { de: 'Startpunkt entfernt', en: 'Start point removed' },
             'end_removed':      { de: 'Ziel entfernt',       en: 'Destination removed' },
@@ -1099,7 +1102,7 @@
         droneRotation: 0,
         currentLayer: 'satellite',
         searchTimeout: null,
-        simSpeed: 1, // 1:1 real speed
+        simSpeed: 30, // default simulation speed multiplier
         showChargingStations: false,
         showCampingPlaces: false,
         showTouristAttractions: false,
@@ -2232,7 +2235,7 @@
     // ============================================
     // Shared "Add to Route" buttons for POI popups
     function buildAddToRouteButtons(lat, lng, name) {
-        const safeName = (name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const safeName = escapeXml(name || 'POI');
         return '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;display:flex;gap:6px;">' +
             '<button onclick="addPOIAsDestination(' + lat + ',' + lng + ',\'' + safeName + '\')" ' +
                 'style="flex:1;padding:6px 8px;border:none;border-radius:6px;background:#10b981;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">' +
@@ -2274,8 +2277,8 @@
         };
 
         let html = '<div style="font-family:sans-serif;padding:4px;min-width:200px;">';
-        html += '<h3 style="margin:0 0 8px;font-size:14px;color:#16a34a;">⚡ ' + (props.name || t('charging_station')) + '</h3>';
-        if (props.operator) html += '<p style="margin:2px 0;font-size:12px;"><strong>' + t('operator') + ':</strong> ' + props.operator + '</p>';
+        html += '<h3 style="margin:0 0 8px;font-size:14px;color:#16a34a;">⚡ ' + sanitizeHTML(props.name || t('charging_station')) + '</h3>';
+        if (props.operator) html += '<p style="margin:2px 0;font-size:12px;"><strong>' + t('operator') + ':</strong> ' + sanitizeHTML(props.operator) + '</p>';
 
         // Overall power output
         if (props['charging_station:output']) {
@@ -2323,10 +2326,10 @@
         else if (props.fee === 'no') html += '<p style="margin:2px 0;font-size:11px;">🆓 ' + t('free') + '</p>';
 
         // Payment methods
-        if (props.payment) html += '<p style="margin:2px 0;font-size:11px;">💳 ' + props.payment + '</p>';
+        if (props.payment) html += '<p style="margin:2px 0;font-size:11px;">💳 ' + sanitizeHTML(props.payment) + '</p>';
 
         // Opening hours
-        if (props.opening_hours) html += '<p style="margin:2px 0;font-size:11px;">🕐 ' + props.opening_hours + '</p>';
+        if (props.opening_hours) html += '<p style="margin:2px 0;font-size:11px;">🕐 ' + sanitizeHTML(props.opening_hours) + '</p>';
 
         html += '</div>';
         return html;
@@ -2334,14 +2337,14 @@
 
     function buildCampingPopupHTML(props) {
         let html = '<div style="font-family:sans-serif;padding:4px;">';
-        html += '<h3 style="margin:0 0 8px;font-size:14px;color:#d97706;">⛺ ' + (props.name || t('campsite')) + '</h3>';
-        if (props.operator) html += '<p style="margin:2px 0;font-size:12px;"><strong>' + t('operator') + ':</strong> ' + props.operator + '</p>';
+        html += '<h3 style="margin:0 0 8px;font-size:14px;color:#d97706;">⛺ ' + sanitizeHTML(props.name || t('campsite')) + '</h3>';
+        if (props.operator) html += '<p style="margin:2px 0;font-size:12px;"><strong>' + t('operator') + ':</strong> ' + sanitizeHTML(props.operator) + '</p>';
         if (props.tents === 'yes') html += '<p style="margin:2px 0;font-size:11px;">🏕️ ' + t('tents_allowed') + '</p>';
         if (props.caravans === 'yes') html += '<p style="margin:2px 0;font-size:11px;">🚐 ' + t('caravans_allowed') + '</p>';
         if (props.internet_access === 'yes') html += '<p style="margin:2px 0;font-size:11px;">📶 ' + t('wifi_available') + '</p>';
         if (props.toilets === 'yes') html += '<p style="margin:2px 0;font-size:11px;">🚻 Toilets</p>';
         if (props.shower === 'yes') html += '<p style="margin:2px 0;font-size:11px;">🚿 Showers</p>';
-        if (props.website) html += '<p style="margin:4px 0;"><a href="' + props.website + '" target="_blank" style="font-size:11px;color:#3b82f6;">Website</a></p>';
+        if (props.website) { const safeUrl = sanitizeURL(props.website); if (safeUrl) html += '<p style="margin:4px 0;"><a href="' + escapeXml(safeUrl) + '" target="_blank" rel="noopener" style="font-size:11px;color:#3b82f6;">Website</a></p>'; }
         html += '</div>';
         return html;
     }
@@ -2542,13 +2545,13 @@
 
     function buildTouristPopupHTML(props) {
         let html = '<div style="font-family:system-ui,sans-serif;padding:4px;">';
-        html += '<div style="font-size:14px;font-weight:700;color:#8b5cf6;margin-bottom:6px;">' + (props.icon || '📸') + ' ' + (props.name || t('cat_attraction')) + '</div>';
-        if (props.category) html += '<div style="font-size:12px;color:#64748b;margin-bottom:4px;"><i class="fas fa-tag" style="margin-right:4px;"></i>' + props.category + '</div>';
-        if (props.description) html += '<p style="font-size:12px;color:#475569;margin:4px 0;line-height:1.4;">' + props.description + '</p>';
-        if (props.wikipedia) html += '<p style="margin:4px 0;"><a href="' + props.wikipedia + '" target="_blank" style="font-size:11px;color:#3b82f6;"><i class="fab fa-wikipedia-w" style="margin-right:4px;"></i>Wikipedia</a></p>';
-        if (props.website) html += '<p style="margin:4px 0;"><a href="' + props.website + '" target="_blank" style="font-size:11px;color:#3b82f6;"><i class="fas fa-globe" style="margin-right:4px;"></i>Website</a></p>';
-        if (props.opening_hours) html += '<p style="font-size:11px;color:#64748b;margin:4px 0;"><i class="fas fa-clock" style="margin-right:4px;"></i>' + props.opening_hours + '</p>';
-        if (props.address) html += '<p style="font-size:11px;color:#64748b;margin:4px 0;"><i class="fas fa-map-pin" style="margin-right:4px;"></i>' + props.address + '</p>';
+        html += '<div style="font-size:14px;font-weight:700;color:#8b5cf6;margin-bottom:6px;">' + sanitizeHTML(props.icon || '📸') + ' ' + sanitizeHTML(props.name || t('cat_attraction')) + '</div>';
+        if (props.category) html += '<div style="font-size:12px;color:#64748b;margin-bottom:4px;"><i class="fas fa-tag" style="margin-right:4px;"></i>' + sanitizeHTML(props.category) + '</div>';
+        if (props.description) html += '<p style="font-size:12px;color:#475569;margin:4px 0;line-height:1.4;">' + sanitizeHTML(props.description) + '</p>';
+        if (props.wikipedia) { const wUrl = sanitizeURL(props.wikipedia); if (wUrl) html += '<p style="margin:4px 0;"><a href="' + escapeXml(wUrl) + '" target="_blank" rel="noopener" style="font-size:11px;color:#3b82f6;"><i class="fab fa-wikipedia-w" style="margin-right:4px;"></i>Wikipedia</a></p>'; }
+        if (props.website) { const wUrl = sanitizeURL(props.website); if (wUrl) html += '<p style="margin:4px 0;"><a href="' + escapeXml(wUrl) + '" target="_blank" rel="noopener" style="font-size:11px;color:#3b82f6;"><i class="fas fa-globe" style="margin-right:4px;"></i>Website</a></p>'; }
+        if (props.opening_hours) html += '<p style="font-size:11px;color:#64748b;margin:4px 0;"><i class="fas fa-clock" style="margin-right:4px;"></i>' + sanitizeHTML(props.opening_hours) + '</p>';
+        if (props.address) html += '<p style="font-size:11px;color:#64748b;margin:4px 0;"><i class="fas fa-map-pin" style="margin-right:4px;"></i>' + sanitizeHTML(props.address) + '</p>';
         html += '</div>';
         return html;
     }
@@ -2784,6 +2787,9 @@
         document.getElementById('follow-btn').classList.remove('active');
         document.getElementById('drone-btn').classList.remove('active');
 
+        // Re-show alt panel if multiple routes exist
+        if (state.routes.length > 1) document.getElementById('alt-panel').classList.add('visible');
+
         // Update button
         const btn = document.getElementById('navigate-btn');
         btn.innerHTML = '<i class="fas fa-play" style="margin-right:6px;"></i>' + t('start_nav');
@@ -2895,18 +2901,18 @@
         let icon = '<i class="fas fa-arrow-up"></i>';
         let text = t('cont_straight');
 
-        if (turnAngle > 30) {
-            icon = '<i class="fas fa-arrow-right" style="transform:rotate(45deg)"></i>';
-            text = t('turn_right');
-        } else if (turnAngle > 100) {
+        if (turnAngle > 100) {
             icon = '<i class="fas fa-arrow-right" style="transform:rotate(90deg)"></i>';
             text = t('sharp_right');
-        } else if (turnAngle < -30) {
-            icon = '<i class="fas fa-arrow-left" style="transform:rotate(-45deg)"></i>';
-            text = t('turn_left');
+        } else if (turnAngle > 30) {
+            icon = '<i class="fas fa-arrow-right" style="transform:rotate(45deg)"></i>';
+            text = t('turn_right');
         } else if (turnAngle < -100) {
             icon = '<i class="fas fa-arrow-left" style="transform:rotate(-90deg)"></i>';
             text = t('sharp_left');
+        } else if (turnAngle < -30) {
+            icon = '<i class="fas fa-arrow-left" style="transform:rotate(-45deg)"></i>';
+            text = t('turn_left');
         }
 
         document.getElementById('nav-icon').innerHTML = icon;
@@ -3103,7 +3109,7 @@
             map.easeTo({
                 center: [longitude, latitude],
                 zoom: Math.max(currentZoom, 15),
-                duration: 1000
+                duration: 800
             });
         }
     }
@@ -3226,6 +3232,17 @@
 
     function escapeXml(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+    }
+    // Sanitize text for safe use inside HTML content (not in attributes)
+    function sanitizeHTML(str) {
+        return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    // Sanitize URL — only allow http/https protocols
+    function sanitizeURL(url) {
+        if (!url) return '';
+        const trimmed = url.trim();
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+        return '';
     }
 
     function formatTime(ms) {
