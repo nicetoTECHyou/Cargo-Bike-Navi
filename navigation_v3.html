@@ -250,6 +250,23 @@
         }
         .vehicle-marker svg { filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3)); }
 
+        /* GPS Live Tracking Marker */
+        .gps-marker {
+            width:22px; height:22px; border-radius:50%; background:#3b82f6; border:3px solid #fff;
+            box-shadow:0 0 0 0 rgba(59,130,246,0.5); cursor:pointer;
+            animation: gps-pulse 2s ease-out infinite;
+        }
+        .gps-marker.heading-indicator {
+            border-radius:50% 50% 50% 20%;
+            transition: transform 0.3s ease;
+        }
+        @keyframes gps-pulse {
+            0%   { box-shadow:0 0 0 0   rgba(59,130,246,0.5); }
+            70%  { box-shadow:0 0 0 16px rgba(59,130,246,0); }
+            100% { box-shadow:0 0 0 16px rgba(59,130,246,0); }
+        }
+        .map-btn.active-gps { background:#3b82f6; color:#fff; }
+
         /* ============================================ */
         /* WAYPOINT MARKER                              */
         /* ============================================ */
@@ -704,6 +721,7 @@
             </div>
             <button class="map-btn" onclick="resetView()" data-i18n-title="reset_view"><i class="fas fa-expand"></i></button>
             <button class="map-btn" onclick="locateMe()" data-i18n-title="my_location"><i class="fas fa-crosshairs"></i></button>
+            <button class="map-btn" id="gps-track-btn" onclick="toggleGpsTracking()" data-i18n-title="live_tracking" style="display:none;"><i class="fas fa-location-arrow"></i></button>
             <button class="map-btn" id="compass-btn" onclick="map.easeTo({bearing:0,duration:500})" data-i18n-title="north_up"><i class="fas fa-compass"></i></button>
             <button class="map-btn" id="charging-btn" onclick="toggleChargingStations(!state.showChargingStations)" data-i18n-title="ev_charging" style="font-size:18px;">⚡</button>
             <button class="map-btn" id="camping-btn" onclick="toggleCampingPlaces(!state.showCampingPlaces)" data-i18n-title="camping" style="font-size:18px;">⛺</button>
@@ -785,7 +803,7 @@
                 <p><strong style="color:#10b981;">4. Set dimensions</strong> — Enter your vehicle width and height to avoid narrow paths and low bridges.</p>
                 <p><strong style="color:#10b981;">5. Custom speed</strong> — Enter a speed to override the default. The animation will match your speed.</p>
                 <p><strong style="color:#10b981;">6. Alternative routes</strong> — After routing, compare alternatives at the bottom of the map.</p>
-                <p><strong style="color:#10b981;">7. Edit route</strong> — Drag any waypoint marker to reroute. Right-click a via-point to remove it.</p>
+                <p><strong style="color:#10b981;">7. Edit route</strong> — Drag any waypoint marker to reroute. Long-press a waypoint (mobile) or right-click (desktop) to remove it.</p>
                 <p><strong style="color:#10b981;">8. Start navigation</strong> — Hit the Navigate button to start the animated turn-by-turn guidance.</p>
                 <p><strong style="color:#10b981;">9. Views</strong> — Use Follow View (behind vehicle) or Drone View (rotating overhead).</p>
                 <p style="margin-top:12px;padding:10px;background:#ecfdf5;border-radius:8px;font-size:12px;">
@@ -881,10 +899,12 @@
             // Toast messages
             'welcome':          { de: 'Willkommen bei KreherNavi! Klicke auf die Karte um deine Route zu setzen. 🚲', en: 'Welcome to KreherNavi! Click the map to set your route. 🚲' },
             'start_set':        { de: 'Startpunkt gesetzt. Klicke für das Ziel.', en: 'Start point set. Click to set destination.' },
-            'via_added':        { de: 'Via-Punkt hinzugefügt. Rechtsklick zum Entfernen.', en: 'Via point added. Right-click to remove.' },
+            'via_added':        { de: 'Via-Punkt hinzugefügt. Lang drücken zum Entfernen.', en: 'Via point added. Long-press to remove.' },
             'start_removed':    { de: 'Startpunkt entfernt', en: 'Start point removed' },
             'end_removed':      { de: 'Ziel entfernt',       en: 'Destination removed' },
             'via_removed':      { de: 'Via-Punkt entfernt',  en: 'Via point removed' },
+            'add_as_destination':{ de: 'Als Ziel',           en: 'Set Destination' },
+            'add_as_via':       { de: 'Als Zwischenstopp',   en: 'Add as Via' },
             'no_route':         { de: 'Keine Route gefunden! Versuche andere Wegpunkte.', en: 'No route found! Try different waypoints.' },
             'calc_first':       { de: 'Erst Route berechnen!', en: 'Calculate a route first!' },
             'nav_started':      { de: 'Navigation gestartet! 🚀', en: 'Navigation started! 🚀' },
@@ -893,6 +913,11 @@
             'calculating':      { de: 'Berechne...',         en: 'Calculating...' },
             'geo_not_supported':{ de: 'Geolokalisierung nicht unterstützt', en: 'Geolocation not supported' },
             'geo_failed':       { de: 'Standort konnte nicht ermittelt werden', en: 'Could not get location' },
+            'live_tracking':    { de: 'GPS Live-Tracking', en: 'GPS Live Tracking' },
+            'gps_tracking_on':  { de: 'GPS-Tracking aktiviert', en: 'GPS tracking enabled' },
+            'gps_tracking_off': { de: 'GPS-Tracking deaktiviert', en: 'GPS tracking disabled' },
+            'gps_follow_on':    { de: 'Karte folgt deiner Position', en: 'Map follows your position' },
+            'gps_follow_off':   { de: 'Karte folgt nicht mehr', en: 'Map no longer follows' },
             'no_charging':      { de: 'Keine Ladestationen im Bereich', en: 'No charging stations in this area' },
             'no_camping':       { de: 'Keine Campingplätze im Bereich', en: 'No camping places in this area' },
             'no_tourist':       { de: 'Keine Sehenswürdigkeiten im Bereich', en: 'No tourist attractions in this area' },
@@ -945,7 +970,7 @@
             'help4':            { de: '4. Abmessungen eingeben — Breite und Höhe des Fahrzeugs eingeben für enge Wege und niedrige Brücken.', en: '4. Set dimensions — Enter your vehicle width and height to avoid narrow paths and low bridges.' },
             'help5':            { de: '5. Eigene Geschwindigkeit — Geschwindigkeit eingeben um den Standard zu überschreiben.', en: '5. Custom speed — Enter a speed to override the default. The animation will match your speed.' },
             'help6':            { de: '6. Alternativrouten — Nach dem Routing Alternativen am unteren Kartenrand vergleichen.', en: '6. Alternative routes — After routing, compare alternatives at the bottom of the map.' },
-            'help7':            { de: '7. Route bearbeiten — Wegpunkte ziehen zum Neuberechnen. Rechtsklick auf Via-Punkt zum Entfernen.', en: '7. Edit route — Drag any waypoint marker to reroute. Right-click a waypoint to remove it.' },
+            'help7':            { de: '7. Route bearbeiten — Wegpunkte ziehen zum Neuberechnen. Lang drücken (Mobil) oder Rechtsklick (Desktop) zum Entfernen.', en: '7. Edit route — Drag any waypoint marker to reroute. Long-press (mobile) or right-click (desktop) to remove.' },
             'help8':            { de: '8. Navigation starten — Auf Navigieren klicken für animierte Abbiegehinweise.', en: '8. Start navigation — Hit the Navigate button to start the animated turn-by-turn guidance.' },
             'help9':            { de: '9. Ansichten — Folgemodus (hinter Fahrzeug) oder Drohnenansicht (rotierend).', en: '9. Views — Use Follow View (behind vehicle) or Drone View (rotating overhead).' },
             'help_data_free':   { de: 'Alle Daten kostenlos!', en: 'All data is free!' },
@@ -1082,6 +1107,11 @@
         campingPlaces: null,
         touristAttractions: null,
         uiHidden: false,
+        gpsWatchId: null,         // watchPosition() ID
+        gpsMarker: null,          // live GPS position marker
+        gpsAccuracyCircle: null,  // GeoJSON accuracy circle source/layer
+        gpsFollowMode: true,      // auto-center map on GPS update
+        lastGpsHeading: null,     // last heading for direction indicator
     };
 
     const ROUTE_COLORS = ['#10b981', '#3b82f6', '#f59e0b'];
@@ -1242,6 +1272,11 @@
         // No built-in MapLibre controls — we use our own custom buttons to avoid overlap
 
         map.on('load', () => {
+            // Show GPS tracking button if geolocation is available
+            if (navigator.geolocation) {
+                document.getElementById('gps-track-btn').style.display = 'flex';
+            }
+
             // Add POI sources (initially empty)
             map.addSource('charging-stations', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
             map.addSource('camping-places', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
@@ -1350,8 +1385,10 @@
 
         // Tourist attraction popups
         map.on('click', 'tourist-attractions-circles', (e) => {
+            e.originalEvent.stopPropagation();
             const props = e.features[0].properties;
-            const popupContent = buildTouristPopupHTML(props);
+            const coords = e.features[0].geometry.coordinates;
+            const popupContent = buildTouristPopupHTML(props) + buildAddToRouteButtons(coords[1], coords[0], props.name);
             new maplibregl.Popup({ offset: 15, maxWidth: '300px' })
                 .setLngLat(e.lngLat)
                 .setHTML(popupContent)
@@ -1360,8 +1397,10 @@
 
         // Charging station popups
         map.on('click', 'charging-stations-circles', (e) => {
+            e.originalEvent.stopPropagation();
             const props = e.features[0].properties;
-            const popupContent = buildChargingPopupHTML(props);
+            const coords = e.features[0].geometry.coordinates;
+            const popupContent = buildChargingPopupHTML(props) + buildAddToRouteButtons(coords[1], coords[0], props.name);
             new maplibregl.Popup({ offset: 15, maxWidth: '300px' })
                 .setLngLat(e.lngLat)
                 .setHTML(popupContent)
@@ -1370,8 +1409,10 @@
 
         // Camping place popups
         map.on('click', 'camping-circles', (e) => {
+            e.originalEvent.stopPropagation();
             const props = e.features[0].properties;
-            const popupContent = buildCampingPopupHTML(props);
+            const coords = e.features[0].geometry.coordinates;
+            const popupContent = buildCampingPopupHTML(props) + buildAddToRouteButtons(coords[1], coords[0], props.name);
             new maplibregl.Popup({ offset: 15, maxWidth: '300px' })
                 .setLngLat(e.lngLat)
                 .setHTML(popupContent)
@@ -1385,6 +1426,14 @@
         map.on('mouseleave', 'camping-circles', () => { map.getCanvas().style.cursor = ''; });
         map.on('mouseenter', 'tourist-attractions-circles', () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', 'tourist-attractions-circles', () => { map.getCanvas().style.cursor = ''; });
+
+        // Disable GPS follow mode when user manually drags the map
+        map.on('dragstart', () => {
+            if (state.gpsWatchId !== null) {
+                state.gpsFollowMode = false;
+                showToast(t('gps_follow_off'), 'info');
+            }
+        });
 
         // Reload POIs on map move (debounced)
         let poiDebounce = null;
@@ -1598,10 +1647,9 @@
             }
         });
 
-        // Right-click to remove any waypoint (start, end, via)
-        el.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            if (state.isNavigating) return; // Don't modify route while navigating
+        // Remove waypoint: long-press (mobile) or right-click (desktop)
+        function removeThisWaypoint() {
+            if (state.isNavigating) return;
             marker.remove();
             const idx = state.waypoints.findIndex(w => w.marker === marker);
             if (idx >= 0) state.waypoints.splice(idx, 1);
@@ -1611,7 +1659,30 @@
             if (type === 'start') showToast(t('start_removed'), 'info');
             else if (type === 'end') showToast(t('end_removed'), 'info');
             else showToast(t('via_removed'), 'info');
+        }
+
+        // Desktop: right-click
+        el.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            removeThisWaypoint();
         });
+
+        // Mobile + Desktop: long-press (500ms)
+        let pressTimer = null;
+        let isLongPress = false;
+        el.addEventListener('pointerdown', (e) => {
+            isLongPress = false;
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                removeThisWaypoint();
+                // Vibrate feedback if available
+                if (navigator.vibrate) navigator.vibrate(50);
+            }, 600);
+        });
+        el.addEventListener('pointerup', () => { clearTimeout(pressTimer); });
+        el.addEventListener('pointermove', () => { clearTimeout(pressTimer); });
+        el.addEventListener('pointercancel', () => { clearTimeout(pressTimer); });
 
         state.waypoints.push({ lng, lat, type, marker });
         sortWaypoints();
@@ -2150,6 +2221,35 @@
     // ============================================
     // POI LOADING & TOGGLING
     // ============================================
+    // Shared "Add to Route" buttons for POI popups
+    function buildAddToRouteButtons(lat, lng, name) {
+        const safeName = (name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;display:flex;gap:6px;">' +
+            '<button onclick="addPOIAsDestination(' + lat + ',' + lng + ',\'' + safeName + '\')" ' +
+                'style="flex:1;padding:6px 8px;border:none;border-radius:6px;background:#10b981;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">' +
+                '<i class=\'fas fa-flag-checkered\'></i> ' + t('add_as_destination') + '</button>' +
+            '<button onclick="addPOIAsVia(' + lat + ',' + lng + ',\'' + safeName + '\')" ' +
+                'style="flex:1;padding:6px 8px;border:none;border-radius:6px;background:#3b82f6;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">' +
+                '<i class=\'fas fa-plus-circle\'></i> ' + t('add_as_via') + '</button>' +
+            '</div>';
+    }
+
+    function addPOIAsDestination(lat, lng, name) {
+        setWaypoint('end', lng, lat);
+        document.getElementById('end-input').value = name || (lat.toFixed(5) + ', ' + lng.toFixed(5));
+        recalculateRoute();
+        showToast(t('end_set'), 'success');
+        // Close all popups
+        document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
+    }
+
+    function addPOIAsVia(lat, lng, name) {
+        setWaypoint('via', lng, lat);
+        recalculateRoute();
+        showToast(t('via_added'), 'success');
+        document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
+    }
+
     function buildChargingPopupHTML(props) {
         const SOCKET_NAMES = {
             'socket:type2': 'Type 2',
@@ -2912,6 +3012,153 @@
         } else {
             map.flyTo({ center:[13.38, 52.52], zoom:12, pitch:0, bearing:0, duration:1000 });
         }
+    }
+
+    // ============================================
+    // GPS LIVE TRACKING (watchPosition)
+    // ============================================
+    function toggleGpsTracking() {
+        if (state.gpsWatchId !== null) {
+            stopGpsTracking();
+        } else {
+            state.gpsFollowMode = true;  // re-enable follow on restart
+            startGpsTracking();
+        }
+    }
+
+    function startGpsTracking() {
+        if (!navigator.geolocation) {
+            showToast(t('geo_not_supported'), 'error');
+            return;
+        }
+
+        // Show button, mark active
+        const btn = document.getElementById('gps-track-btn');
+        btn.style.display = 'flex';
+        btn.classList.add('active-gps');
+
+        // Show GPS marker button on first call
+        document.getElementById('gps-track-btn').style.display = 'flex';
+
+        // Create position marker if not exists
+        if (!state.gpsMarker) {
+            const el = document.createElement('div');
+            el.className = 'gps-marker heading-indicator';
+            state.gpsMarker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([0, 0]).addTo(map);
+            state.gpsMarker.getElement().style.display = 'none'; // hidden until first fix
+        }
+
+        // Start watching position
+        state.gpsWatchId = navigator.geolocation.watchPosition(
+            onGpsPositionUpdate,
+            (err) => {
+                if (err.code === 1) {
+                    showToast(t('geo_failed'), 'error');
+                    stopGpsTracking();
+                }
+                // Code 2/3: temporary, don't stop
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 2000,
+                timeout: 10000
+            }
+        );
+
+        showToast(t('gps_tracking_on'), 'success');
+    }
+
+    function onGpsPositionUpdate(position) {
+        const { longitude, latitude, accuracy, heading, speed } = position.coords;
+
+        // Show marker
+        if (state.gpsMarker) {
+            state.gpsMarker.getElement().style.display = '';
+            state.gpsMarker.setLngLat([longitude, latitude]);
+        }
+
+        // Update heading indicator on marker
+        if (heading !== null && !isNaN(heading)) {
+            state.lastGpsHeading = heading;
+            if (state.gpsMarker) {
+                state.gpsMarker.getElement().style.transform = `rotate(${heading}deg)`;
+            }
+        }
+
+        // Update accuracy circle
+        updateAccuracyCircle(longitude, latitude, accuracy || 50);
+
+        // Follow mode: center map on position
+        if (state.gpsFollowMode) {
+            const currentZoom = map.getZoom();
+            map.easeTo({
+                center: [longitude, latitude],
+                zoom: Math.max(currentZoom, 15),
+                duration: 1000
+            });
+        }
+    }
+
+    function updateAccuracyCircle(lng, lat, accuracyMeters) {
+        if (!map.getSource('gps-accuracy-circle')) {
+            map.addSource('gps-accuracy-circle', {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[]] }, properties: {} }
+            });
+            map.addLayer({
+                id: 'gps-accuracy-circle-layer',
+                type: 'fill',
+                source: 'gps-accuracy-circle',
+                paint: {
+                    'fill-color': '#3b82f6',
+                    'fill-opacity': 0.12
+                }
+            });
+        }
+
+        // Create circle points (64 segments)
+        const points = [];
+        const segments = 64;
+        for (let i = 0; i <= segments; i++) {
+            const angle = (i / segments) * 2 * Math.PI;
+            const dx = (accuracyMeters / 111320) * Math.cos(angle);
+            const dy = (accuracyMeters / 110540) * Math.sin(angle);
+            points.push([lng + dx, lat + dy]);
+        }
+        points.push(points[0]); // close the ring
+
+        map.getSource('gps-accuracy-circle').setData({
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [points] },
+            properties: {}
+        });
+    }
+
+    function stopGpsTracking() {
+        if (state.gpsWatchId !== null) {
+            navigator.geolocation.clearWatch(state.gpsWatchId);
+            state.gpsWatchId = null;
+        }
+
+        // Remove marker
+        if (state.gpsMarker) {
+            state.gpsMarker.remove();
+            state.gpsMarker = null;
+        }
+
+        // Remove accuracy circle
+        if (map.getSource('gps-accuracy-circle')) {
+            map.removeLayer('gps-accuracy-circle-layer');
+            map.removeSource('gps-accuracy-circle');
+        }
+
+        // Update button
+        const btn = document.getElementById('gps-track-btn');
+        if (btn) {
+            btn.classList.remove('active-gps');
+        }
+
+        showToast(t('gps_tracking_off'), 'info');
     }
 
     function locateMe() {
