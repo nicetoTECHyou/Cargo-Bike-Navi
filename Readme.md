@@ -71,6 +71,7 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (10–60 km/h einstell
 ├── navigation_v3.html      # Hauptdatei (Code & Assets)
 ├── manifest.json           # PWA-Manifest
 ├── sw.js                   # Service Worker (Cache)
+├── index.html              # Umleitung zur Navi Datei
 ├── icon-192.png            # App-Icon (Klein)
 └── icon-512-final.png      # App-Icon (Groß)
 ````
