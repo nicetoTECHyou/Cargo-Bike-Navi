@@ -137,7 +137,14 @@ dein-repo/
 - **Overpass**: POI-Abfragen (OpenStreetMap)
 - **ESRI**: Satelliten- & Topografiekarten-Tiles
 
+# Social Media
+
+Folgen Sie Herrn Kreher auf Twitch:
+
+[![Twitch Status](https://img.shields.io/badge/Twitch-renekreher-purple?style=for-the-badge&logo=twitch)](https://www.twitch.tv/renekreher)
+
 ---
+[Jetzt auf Twitch ansehen >>](https://www.twitch.tv/renekreher)
 
 ## 📋 Lizenz
 
