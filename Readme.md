@@ -101,16 +101,18 @@ Alle Fahrzeugmarker wurden von einfachen SVGs auf hochwertige Base64-PNGs umgest
 
 ## 🔗 Social Media & Lizenz
 
+**Datenquellen:**
+
+  * 🗺️ Karten: [OpenStreetMap](https://www.openstreetmap.org/) (ODbL)
+  * 🛰️ Satellit: [ESRI World Imagery](https://www.esri.com/)
+
 ## 📺 Support & Community
 
 Begleite **Rene Kreher** live bei seinen Projekten und Reisen:
 
 [![Twitch Status](https://img.shields.io/badge/Live_auf-Twitch-purple?style=for-the-badge&logo=twitch&logoColor=white)](https://www.twitch.tv/renekreher)
 
-**Datenquellen:**
 
-  * 🗺️ Karten: [OpenStreetMap](https://www.openstreetmap.org/) (ODbL)
-  * 🛰️ Satellit: [ESRI World Imagery](https://www.esri.com/)
 
 <!-- end list -->
 
