@@ -4,6 +4,8 @@
 
 **Satellitengestützte Fahrrad-Navigation für Lastenräder & Co.**
 
+Der Namensgeber ReneKreher hat nichts mit der Entwicklung der App zu tun !! Fanmade Projekt von nicetoTECHyou(Twitch) um Rene seine Projekte & Reisen zu unterstützen und die suche nach Charging & Camping Spots zu erleichtern. 
+
 [![PWA](https://img.shields.io/badge/PWA-Ready-green?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-blue?style=flat-square)]()
 [![No Backend](https://img.shields.io/badge/No%20Backend-100%25%20Client-brightgreen?style=flat-square)]()
