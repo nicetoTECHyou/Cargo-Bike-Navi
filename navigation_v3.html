@@ -386,7 +386,7 @@
         /* MOBILE RESPONSIVE                            */
         /* ============================================ */
         @media(max-width:768px){
-            #sidebar { position:absolute; left:-340px; z-index:30; transition:left 0.3s; touch-action:pan-y; }
+            #sidebar { position:absolute; left:-340px; z-index:30; transition:left 0.3s; display:block; overflow-y:auto; -webkit-overflow-scrolling:touch; }
             #sidebar.open { left:0; }
             .mobile-toggle { display:flex !important; }
             .sidebar-close-btn { display:flex !important; }
