@@ -157,6 +157,16 @@ Dieses Projekt nutzt die folgenden Dienste und Datenquellen:
 
 ---
 KNOWN BUGS : Only FRANKY is a Top Down Model .. Fix in next version 
+
+Fixed: XSS via unsanierte OSM-Daten in Popups
+Fixed: XSS in buildAddToRouteButtons()
+Fixed: javascript: URL Injection via props.website
+Fixed: Abbiege-Erkennung — unreachable code
+Fixed: simSpeed Initialwert falsch (1 statt 30)
+Fixed: Fehlender i18n-Key 'end_set'
+Fixed: Alt-Routen-Panel nicht wieder sichtbar nach Nav-Stopp
+Fixed: GPS easeTo queued auf schnellen Updates
+Fixed: view-controls right:230px auf Mobile
 ---
 
 <div align="center">
