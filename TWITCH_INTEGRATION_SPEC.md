@@ -5,6 +5,8 @@
 
 *Community-gesteuerte Navigation via Twitch Chat*
 
+*html + dieses dokument hochladen damit die KI versteht was zu machen ist*
+
 **nicetoTECHyou** | [GitHub: nicetotechyou/Cargo-Bike-Navi](https://github.com/nicetotechyou/Cargo-Bike-Navi) | April 2026
 
 *Erstellt mit Unterstützung von [Z.ai](https://chat.z.ai)*
