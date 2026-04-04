@@ -164,6 +164,14 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 
 ---
 
+## 🗺️ Roadmap
+
+[![Twitch Roadmap](https://img.shields.io/badge/🚲_Twitch_Integration-Roadmap-a855f7?style=for-the-badge)](TWITCH_INTEGRATION_SPEC.md)
+
+**Community-gesteuerte Navigation via Twitch Chat** — Der Chat reichert per `!waypoint` Orte ein, der Streamer bestätigt in einem Admin-Panel, CargoNavi berechnet die Route und navigiert live. Komplett ohne Backend.
+
+---
+
 ## 🤖 Gebaut mit Z.ai — KI-Assistent
 
 Dieses Projekt wurde mit Unterstützung von **Z.ai**, einem leistungsstarken KI-Assistenten von Zhipu AI entwickelt. Von der Architektur über die GPS-Navigation bis zur Sprachsteuerung — Z.ai war dabei als kreativer Partner an meiner Seite und hat maßgeblich dazu beigetragen, CargoNavi zu dem zu machen, was es heute ist.
