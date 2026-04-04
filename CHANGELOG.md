@@ -1,5 +1,25 @@
 # Changelog — CargoNavi Navigation System
 
+## [v3.4] — Auto-Center & Auto GPS Tracking - 2026-04-05
+
+### Added
+- **Auto-Center on Load** — Map automatically centers on user location when the app loads:
+  - Uses `getCurrentPosition()` with high accuracy and 8s timeout
+  - Smooth flyTo animation (1.5s) to user position at zoom level 14
+  - Silent fallback to default center (Berlin) if permission denied
+- **Auto GPS-Tracking** — GPS live tracking starts automatically on app load:
+  - No button click needed — tracking begins immediately after map load
+  - Shows GPS marker, accuracy circle, and heading indicator
+  - GPS button remains functional for toggling tracking on/off
+  - Guarded: won't activate if GPS navigation is already running
+
+### Technical Notes
+- Both features trigger inside `map.on('load')` callback, after POI sources are initialized
+- `getCurrentPosition()` handles error silently (empty callback) to avoid toast spam on first load
+- `startGpsTracking()` already has built-in guard against duplicate activation
+
+---
+
 ## [v3.3] — Real GPS Navigation & Volume Controls - 2026-04-04
 
 ### Added
