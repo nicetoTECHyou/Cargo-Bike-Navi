@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚲 KreherNavi
+# 🚲 CargoNavi
 ### Satellitengestützte Navigation für Lastenräder & Co.
 
 [![PWA](https://img.shields.io/badge/PWA-Ready-green?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
@@ -13,13 +13,8 @@
 
 ---
 
-> [!IMPORTANT]
-> **Haftungsausschluss:** Der Namensgeber **ReneKreher** hat nichts mit der Entwicklung der App zu tun! Dies ist ein **Fanmade Projekt** von [nicetoTECHyou (Twitch)](https://twitch.tv/nicetoTECHyou), um Renes Projekte & Reisen zu unterstützen und die Suche nach Charging- & Camping-Spots zu erleichtern.
-
----
-
 ## 📱 Installation (PWA)
-KreherNavi ist eine **Progressive Web App**. Du kannst sie ohne App Store direkt auf deinem Home-Bildschirm installieren:
+CargoNavi ist eine **Progressive Web App**. Du kannst sie ohne App Store direkt auf deinem Home-Bildschirm installieren:
 
 | Plattform | Anleitung |
 | :--- | :--- |
@@ -109,7 +104,7 @@ Alle Fahrzeugmarker wurden von einfachen SVGs auf hochwertige Base64-PNGs umgest
 
 ## 📺 Support & Community
 
-Begleite **Rene Kreher** live bei seinen Projekten und Reisen:
+Begleite **Rene Kreher** live bei seinen Projekten und Reisen - Er war die Inspiration dieses Navi zu Programmieren , da es nicht wirklich gute Kostenlose Navis gibt die so viel umfang bieten eine route zu planen.
 
 [![Twitch Status](https://img.shields.io/badge/Live_auf-Twitch-purple?style=for-the-badge&logo=twitch&logoColor=white)](https://www.twitch.tv/renekreher)
 
