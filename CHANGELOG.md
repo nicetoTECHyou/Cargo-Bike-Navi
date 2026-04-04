@@ -1,6 +1,85 @@
 # Changelog — CargoNavi Navigation System
 
-## [Voice Navigation + PWA Icons] - 2026-04-04
+## [v3.3] — Real GPS Navigation & Volume Controls - 2026-04-04
+
+### Added
+- **Real GPS Navigation Mode** — "Start Navigation" now uses the device's real GPS signal:
+  - Vehicle marker follows your actual GPS position in real-time
+  - Real speed displayed from GPS (km/h), or calculated from consecutive position fixes
+  - Heading from GPS compass or derived from position deltas
+  - Vehicle marker hidden until first GPS fix, then map flies to your position
+  - Auto-arrival detection when within 30m of destination
+  - Off-route and wrong-way voice warnings during GPS navigation
+- **Demo Mode** — Separate button for animated route simulation:
+  - Isolated from GPS navigation — both modes cannot run simultaneously
+  - Demo button shows "Stop Demo" with orange styling when active
+  - Start Navigation button shows "Stop Navigation" with red styling when active
+  - Inactive button is greyed out during either mode
+- **Volume Controls in Sidebar** — Always visible below Voice Navigation toggle:
+  - **Mute button** — Tap to mute/unmute, turns red when muted, synced with map quick-mute
+  - **Volume slider** — 0–100% with large touch-friendly 22px thumb
+  - **Voice speed** — 0.8x, 1x, 1.2x, 1.5x speech rate buttons
+  - Dark mode support for all controls
+- **Quick Mute Button on Map** — Visible during navigation (bottom-right):
+  - Simple tap toggles mute — synced with sidebar mute button
+- **8 new i18n strings** for GPS navigation and volume controls (DE/EN)
+- **`state.navMode`** property to track active mode ('gps' or 'demo')
+
+### Changed
+- **`startNavigation()`** rewritten — now starts real GPS navigation via `watchPosition()`:
+  - Creates vehicle marker at last known GPS position or route start
+  - Uses dedicated `onNavGpsPositionUpdate()` handler for navigation updates
+  - High accuracy GPS (1000ms max age, 15s timeout)
+- **`startDemoNavigation()`** extracted — contains the old simulation/animation code
+- **`stopNavigation()`** updated to handle both modes:
+  - Clears GPS watch for GPS mode, cancels animation frame for demo mode
+  - Resets both Start Navigation and Demo Mode buttons
+  - Resets DeLorean speed display effects
+- **`onNavGpsPositionUpdate()`** — new dedicated GPS handler for navigation mode:
+  - Moves vehicle marker to GPS position
+  - Calculates heading from GPS or consecutive position fixes
+  - Shows real speed from GPS hardware
+  - Triggers voice announcements based on nearest route point
+  - Detects arrival within 30m of destination
+  - Updates accuracy circle
+  - Camera follow with bearing and pitch
+- **`onGpsPositionUpdate()`** (standalone GPS tracking) — added guard to skip during GPS navigation
+- **`startGpsTracking()`** — added guard to prevent starting when GPS navigation is active
+- **`distToRoute()`** improved — uses point-to-line-segment projection instead of point-to-point distance:
+  - Much more accurate for determining how far the user is from the route
+  - Now returns `nearestIdx` for voice instruction lookup
+- **Voice Navigation improvements:**
+  - `VoiceNav.minInterval` reduced from 3000ms to 1500ms for more responsive announcements
+  - `getBracket()` threshold changed from 20m to 15m for "now" announcements
+  - Dead '20' bracket removed from `bracketOrder` array
+  - `VoiceNav.speak()` now respects `volume` and `muted` properties
+  - `utterance.rate` uses configurable `VoiceNav.rate` instead of hardcoded 1.0
+- **`toggleMute()`** updated — syncs both sidebar and map mute buttons simultaneously
+
+### Technical Notes
+- GPS heading fallback: if device doesn't provide heading, it's calculated from consecutive GPS positions (max 5s delta)
+- GPS speed fallback: if device doesn't provide speed, it's calculated from haversine distance between consecutive fixes
+- Point-to-line-segment distance uses coordinate projection with clamped parameter [0,1]
+- Both navigation modes share: vehicle marker, nav instructions, voice engine, speed display, follow/drone camera
+- Volume controls use CSS `-webkit-appearance: none` for consistent cross-browser slider styling
+- All controls have `touch-action: manipulation` to prevent double-tap zoom on mobile
+
+### File Structure
+```
+├── navigation_v3.html
+├── manifest.json
+├── sw.js
+├── icon-192.png
+├── icon-512-final.png
+├── FRANKY.png
+├── mtb_topdown.png
+├── racingbike_topdown.png
+└── delorean_topdown.png
+```
+
+---
+
+## [v3.2] — Voice Navigation + PWA Icons - 2026-04-04
 
 ### Added
 - **Voice Navigation System** — Full turn-by-turn voice guidance using Web Speech API (no external services needed):

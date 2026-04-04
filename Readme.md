@@ -7,6 +7,7 @@
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-blue?style=flat-square)]()
 [![No Backend](https://img.shields.io/badge/No%20Backend-100%25%20Client-brightgreen?style=flat-square)]()
 [![Voice Nav](https://img.shields.io/badge/Voice-Navigation-8b5cf6?style=flat-square)]()
+[![GPS](https://img.shields.io/badge/GPS-Realtime-3b82f6?style=flat-square)]()
 
 **Dein Lastenrad-Navi: Ohne App Store, ohne Backend, ohne Datensammlung und vor allem ohne Kosten.**
 
@@ -29,23 +30,28 @@ CargoNavi ist eine **Progressive Web App**. Du kannst sie ohne App Store direkt 
 
 ### 🗺️ Navigation & Karten
 * **Hochauflösende Satellitenbilder:** Nutzung von ESRI World Imagery.
+* **Echte GPS-Navigation:** Start Navigation nutzt das echte GPS-Signal deines Geräts — Fahrzeugmarker folgt deiner Position in Echtzeit.
+* **Demo-Modus:** Separater Button zum virtuellen Abfahren der Route mit animiertem Fahrzeug.
 * **Intelligentes Routing:** Fahrradoptimierte Strecken via BRouter-API.
 * **Interaktive Planung:** Wegpunkte per Klick & Drag setzen; bis zu 3 Alternativrouten.
-* **Live-Modus:** Turn-by-Turn-Navigation mit animierter Fahrzeuganzeige & Kompass.
-* **Simulationsmodus:** Routen vorab mit 1x bis 100x Geschwindigkeit virtuell abfahren.
+* **Echte Geschwindigkeit:** GPS-Modus zeigt deine reale Geschwindigkeit in km/h an.
+* **Auto-Arrival:** Erkennt automatisch wenn du within 30m des Ziels ankommst.
 * **Höhenprofil:** Anstieg & Abstieg der Route automatisch berechnet und angezeigt.
 * **Fahrzeugabmessungen:** Breite & Höhe eingeben — Route vermeidet enge Wege & niedrige Brücken.
 * **Autobahnen meiden:** Schalter zum Vermeiden von highways/motorways.
 
-### 🗣️ Sprachnavigation (NEU)
+### 🗣️ Sprachnavigation & Lautstärke
 * **Turn-by-Turn Ansagen:** Kündigt Abbiegungen automatisch per Stimme an — kein Hinsehen nötig.
-* **Distanz-Trigger:** Ansagen bei 500m, 300m, 200m, 100m, 50m und 20m vor dem Abbiegepunkt.
+* **GPS-basierte Ansagen:** Sprachnavigation arbeitet mit dem echten GPS-Signal in Echtzeit.
+* **Distanz-Trigger:** Ansagen bei 500m, 300m, 200m, 100m, 50m vor dem Abbiegepunkt.
 * **Sofort-Ansagen:** *"Jetzt rechts abbiegen"* wenn du direkt am Abbiegepunkt bist.
 * **Zielankunft:** Automatische Ansage *"Sie haben Ihr Ziel erreicht"*.
+* **Mute-Button:** Stiller Schalter (🔇) in der Sidebar und auf der Karte während der Navigation.
+* **Lautstärke-Regler:** Slider (0–100%) zum Einstellen der Sprachlautstärke.
+* **Sprechtempo:** Wählbare Geschwindigkeit: 0.8x, 1x, 1.2x, 1.5x.
 * **Mehrsprachig:** Sprachausgabe wechselt automatisch zwischen Deutsch und Englisch.
 * **Kein Backend:** Nutzt die Web Speech API des Browsers — funktioniert komplett offline.
 * **Ein-/Ausschaltbar:** Schalter in der Sidebar zum Deaktivieren der Sprachausgabe.
-* **Kompatibel:** Funktioniert auf Chrome, Safari, Edge, Firefox und allen modernen Browsern.
 
 ### ⚠️ Routen-Überwachung (NEU)
 * **Off-Route Erkennung:** Warnt dich wenn du mehr als 50m von der geplanten Route abkommst.
@@ -108,6 +114,24 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 ---
 
 ## 🚀 Changelog
+
+### [v3.3] — Echte GPS-Navigation & Lautstärke-Steuerung
+**Datum:** 2026-04-04
+
+**Neu:**
+- 📍 **Echte GPS-Navigation:** "Start Navigation" nutzt das echte GPS-Signal — Fahrzeugmarker, Geschwindigkeit und Richtung folgen deiner Position in Echtzeit
+- 🎮 **Demo-Modus:** Separater Button zum virtuellen Abfahren der Route mit Animation
+- 🔇 **Mute-Button:** Stiller Schalter in der Sidebar + Schnell-Mute auf der Karte während der Navigation
+- 🔊 **Lautstärke-Regler:** Volume-Slider (0–100%) in der Sidebar
+- ⏩ **Sprechtempo:** Wählbare Geschwindigkeit: 0.8x, 1x, 1.2x, 1.5x
+- 🏁 **Auto-Arrival:** Erkennt automatisch wenn du innerhalb 30m des Ziels ankommst
+- 💨 **Echte Geschwindigkeit:** Zeht die reale GPS-Geschwindigkeit in km/h an
+
+**Verbessert:**
+- Off-Route Erkennung nutzt jetzt Point-to-Line-Segment Distanz (genauer als Punkt-zu-Punkt)
+- Sprachnavigation arbeitet jetzt mit dem echten GPS-Signal (nicht nur Simulation)
+- Distanz-Trigger für Ansagen optimiert (1,5s statt 3s Mindestintervall)
+- Dead '20m' Bracket aus der Ansagen-Logik entfernt
 
 ### [v3.2] — Sprachnavigation & Routen-Überwachung
 **Datum:** 2026-04-04
