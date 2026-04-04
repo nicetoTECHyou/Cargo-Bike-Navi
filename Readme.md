@@ -82,7 +82,7 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 * **GPS Live-Tracking:** Eigene Position mit Genauigkeitskreis & Kompass-Indikator.
 * **Responsive Design:** Optimiert für Smartphone, Tablet & Desktop.
 * **Export-Profi:** Unterstützt GPX, KML, TCX, CSV & Google Maps Direktlinks.
-* **Tastenkürzel:** Strg+N (Navigation), Strg+D (Dark Mode), Strg+F (Vollbild), Esc (Schließen).
+* **Tastenkürzel:** Für PC gibt es Tasten kombinationen , aber ich denke die werden nicht gebraucht - Strg+N (Navigation), Strg+D (Dark Mode), Strg+F (Vollbild), Esc (Schließen).
 
 ---
 
