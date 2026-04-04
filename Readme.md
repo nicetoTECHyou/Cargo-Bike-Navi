@@ -164,6 +164,14 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 
 ---
 
+## 🤖 Gebaut mit Z.ai — KI-Assistent
+
+Dieses Projekt wurde mit Unterstützung von **Z.ai**, einem leistungsstarken KI-Assistenten von Zhipu AI entwickelt. Von der Architektur über die GPS-Navigation bis zur Sprachsteuerung — Z.ai war dabei als kreativer Partner an meiner Seite und hat maßgeblich dazu beigetragen, CargoNavi zu dem zu machen, was es heute ist.
+
+[![Powered by Z.ai](https://img.shields.io/badge/Powered_by-Z.ai-0ea5e9?style=for-the-badge)](https://chat.z.ai)
+
+---
+
 ## 🔗 Social Media & Lizenz
 
 **Datenquellen:**
