@@ -162,7 +162,7 @@ CargoNavi (Browser)
 
 CargoNavi verbindet sich über die **tmi.js** Bibliothek per WebSocket direkt mit dem Twitch-Chat. Der Benutzer muss lediglich seinen Kanalnamen, den Bot-Namen und einen OAuth-Token eingeben. Diese Credentials werden verschlüsselt im localStorage gespeichert und bei jedem Besuch automatisch geladen. Der bestehende Bot des Streamers bleibt völlig unangetastet — CargoNavi verbindet sich als **zusätzliches Client**.
 
-Der OAuth-Token wird nur mit den Scopes `chat:read` und `chat:edit` angefordert, was den minimal notwendigen Berechtigungsumfang darstellt. Der Token kann über [twitchapps.com/tmi](https://twitchapps.com/tmi/) generiert werden, was den Setup-Prozess für den Streamer so einfach wie möglich gestaltet.
+Der OAuth-Token wird nur mit den Scopes `chat:read` und `chat:edit` angefordert, was den minimal notwendigen Berechtigungsumfang darstellt. Der Token kann über https://twitchtokengenerator.com/ generiert werden, was den Setup-Prozess für den Streamer so einfach wie möglich gestaltet.
 
 ### 3.2 Setup-UI (Twitch Panel in der Sidebar)
 
