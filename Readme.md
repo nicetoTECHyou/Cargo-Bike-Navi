@@ -84,6 +84,7 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 * **Vollbildmodus:** Komplett auf die Karte fokussieren — UI ein-/ausblenden.
 * **Mehrsprachig:** Deutsch & Englisch per Klick umschaltbar.
 * **GPS Live-Tracking:** Eigene Position mit Genauigkeitskreis & Kompass-Indikator.
+* **Auto-Center:** Karte zentriert sich automatisch auf deinem Standort beim Laden der App.
 * **Responsive Design:** Optimiert für Smartphone, Tablet & Desktop.
 * **Export-Profi:** Unterstützt GPX, KML, TCX, CSV & Google Maps Direktlinks.
 * **Tastenkürzel:** Strg+N (Navigation), Strg+D (Dark Mode), Strg+F (Vollbild), Esc (Schließen).
@@ -118,6 +119,16 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 ---
 
 ## 🚀 Changelog
+
+### [v3.4] — Auto-Center & UX-Verbesserungen
+**Datum:** 2026-04-05
+
+**Neu:**
+- 🎯 **Auto-Center:** Karte zentriert sich automatisch auf deinem Standort beim Laden der App
+- 🔄 **Sanfter Flug:** Smooth flyTo-Animation beim ersten Zentrieren (1,5s)
+
+**Technisch:**
+- GPS-Abfrage direkt nach Karten-Load, Fallback auf Standard-Zentrum (Berlin) wenn keine Erlaubnis
 
 ### [v3.3] — Echte GPS-Navigation & Lautstärke-Steuerung
 **Datum:** 2026-04-04
