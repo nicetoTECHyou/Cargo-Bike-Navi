@@ -108,6 +108,11 @@ Begleite **Rene Kreher** live bei seinen Projekten und Reisen - Er war die Inspi
 
 [![Twitch Status](https://img.shields.io/badge/Live_auf-Twitch-purple?style=for-the-badge&logo=twitch&logoColor=white)](https://www.twitch.tv/renekreher)
 
+> [!IMPORTANT]
+> **Haftungsausschluss:** **ReneKreher** hat nichts mit der Entwicklung der App zu tun! Dies ist ein **Fanmade Projekt** von [nicetoTECHyou (Twitch)](https://twitch.tv/nicetoTECHyou), um Rene´s Projekte & Reisen zu unterstützen und die Suche nach Strecken , Sehenswürdigkeiten , Charging- & Camping-Spots zu erleichtern.
+
+---
+
 
 
 <!-- end list -->
