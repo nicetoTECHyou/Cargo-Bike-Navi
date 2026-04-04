@@ -7,7 +7,11 @@ const PRECACHE_URLS = [
     './navigation_v3.html',
     './icon-192.png',
     './icon-512-final.png',
-    './manifest.json'
+    './manifest.json',
+    './FRANKY.png',
+    './mtb_topdown.png',
+    './racingbike_topdown.png',
+    './delorean_topdown.png'
 ];
 
 // Install: pre-cache essential files
