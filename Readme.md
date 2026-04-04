@@ -11,6 +11,10 @@
 
 **Dein Lastenrad-Navi: Ohne App Store, ohne Backend, ohne Datensammlung und vor allem ohne Kosten.**
 
+<br>
+
+[![Open CargoNavi](https://img.shields.io/badge/🚲_CargoNavi_öffnen-Navi_Starten-2ea44f?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://sfc-mahony.github.io/Cargo-Bike-Navi/navigation_v3.html)
+
 </div>
 
 ---
@@ -82,7 +86,7 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 * **GPS Live-Tracking:** Eigene Position mit Genauigkeitskreis & Kompass-Indikator.
 * **Responsive Design:** Optimiert für Smartphone, Tablet & Desktop.
 * **Export-Profi:** Unterstützt GPX, KML, TCX, CSV & Google Maps Direktlinks.
-* **Tastenkürzel:** Für PC gibt es Tasten kombinationen , aber ich denke die werden nicht gebraucht - Strg+N (Navigation), Strg+D (Dark Mode), Strg+F (Vollbild), Esc (Schließen).
+* **Tastenkürzel:** Strg+N (Navigation), Strg+D (Dark Mode), Strg+F (Vollbild), Esc (Schließen).
 
 ---
 
