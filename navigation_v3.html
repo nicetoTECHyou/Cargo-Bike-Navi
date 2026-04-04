@@ -342,6 +342,56 @@
         html.dark .nav-instr-dist { color:#94a3b8; }
 
         /* ============================================ */
+        /* VOICE VOLUME CONTROLS                        */
+        /* ============================================ */
+        #voice-controls {
+            position:absolute; bottom:80px; right:14px; z-index:10;
+            display:none; flex-direction:column; align-items:flex-end; gap:6px;
+        }
+        #voice-controls.visible { display:flex; }
+        .voice-mute-btn {
+            width:44px; height:44px; border-radius:12px; border:none; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(255,255,255,0.95); color:#10b981; font-size:18px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.12); backdrop-filter:blur(8px);
+            transition:all 0.2s; touch-action:manipulation;
+            -webkit-tap-highlight-color:transparent;
+        }
+        html.dark .voice-mute-btn { background:rgba(30,41,59,0.95); color:#10b981; }
+        .voice-mute-btn:hover { transform:scale(1.06); box-shadow:0 6px 20px rgba(0,0,0,0.18); }
+        .voice-mute-btn.muted { color:#ef4444; background:rgba(254,226,226,0.95); }
+        html.dark .voice-mute-btn.muted { color:#ef4444; background:rgba(127,29,29,0.95); }
+        .voice-volume-row { display:flex; align-items:center; gap:10px; width:100%; }
+        .voice-volume-slider {
+            -webkit-appearance:none; appearance:none; flex:1; height:6px;
+            border-radius:3px; background:linear-gradient(90deg,#e2e8f0 0%,#10b981 100%);
+            outline:none; cursor:pointer; touch-action:none;
+        }
+        html.dark .voice-volume-slider { background:linear-gradient(90deg,#475569 0%,#10b981 100%); }
+        .voice-volume-slider::-webkit-slider-thumb {
+            -webkit-appearance:none; appearance:none; width:22px; height:22px;
+            border-radius:50%; background:#10b981; cursor:pointer; border:3px solid #fff;
+            box-shadow:0 2px 6px rgba(0,0,0,0.2); touch-action:manipulation;
+        }
+        .voice-volume-slider::-moz-range-thumb {
+            width:22px; height:22px; border-radius:50%; background:#10b981; cursor:pointer;
+            border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+        }
+        .voice-speed-row { display:flex; align-items:center; gap:6px; margin-top:2px; }
+        .voice-speed-btn {
+            padding:4px 8px; border-radius:6px; border:1.5px solid #e2e8f0;
+            cursor:pointer; font-size:10px; font-weight:700; color:#64748b;
+            background:#fff; transition:all 0.15s; touch-action:manipulation;
+            -webkit-tap-highlight-color:transparent;
+        }
+        html.dark .voice-speed-btn { border-color:#475569; color:#94a3b8; background:#1e293b; }
+        .voice-speed-btn:hover { border-color:#10b981; color:#10b981; }
+        .voice-speed-btn.active { border-color:#10b981; color:#fff; background:#10b981; }
+        html.dark #sidebar-voice-controls { background:#0f172a; border-color:#334155; }
+        html.dark #sidebar-mute-btn { background:#1e293b; border-color:#475569; }
+        html.dark #sidebar-mute-btn.muted { background:#450a0a; border-color:#7f1d1d; color:#ef4444; }
+
+        /* ============================================ */
         /* DELorean FIRE TRAIL                          */
         /* ============================================ */
         .fire-trail {
@@ -536,6 +586,7 @@
             .poi-list-name { font-size:12px; }
             .poi-list-distance { font-size:11px; }
             .poi-list-icon { width:28px; height:28px; font-size:14px; }
+            #voice-controls { bottom:90px; right:10px; }
         }
     </style>
 </head>
@@ -665,12 +716,34 @@
                 </label>
             </div>
             <div class="toggle-row">
-                <span class="toggle-label"><i class="fas fa-volume-up" style="margin-right:6px;color:#8b5cf6;"></i><span data-i18n="voice_nav">Voice Navigation</span></span>
+                <span class="toggle-label"><i class="fas fa-volume-up" style="margin-right:6px;color:#8b5cf6;" id="sidebar-voice-icon"></i><span data-i18n="voice_nav">Voice Navigation</span></span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="voice-nav-toggle" checked onchange="toggleVoiceNav(this.checked)">
                     <div class="toggle-track"></div>
                     <div class="toggle-thumb"></div>
                 </label>
+            </div>
+            <!-- Volume & Speed Controls -->
+            <div id="sidebar-voice-controls" style="margin-top:8px; padding:10px 12px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                    <button id="sidebar-mute-btn" onclick="toggleMute()" style="width:36px; height:36px; border-radius:8px; border:1.5px solid #e2e8f0; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; color:#10b981; transition:all 0.2s; flex-shrink:0;" title="Mute/Unmute">
+                        <i class="fas fa-volume-up" id="sidebar-mute-icon"></i>
+                    </button>
+                    <div style="flex:1;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                            <span style="font-size:11px; font-weight:600; color:#64748b;" data-i18n="voice_volume">Volume</span>
+                            <span style="font-size:11px; font-weight:800; color:#10b981;" id="voice-volume-value">100%</span>
+                        </div>
+                        <input type="range" class="voice-volume-slider" id="voice-volume-slider" min="0" max="100" value="100" oninput="onVolumeChange(this.value)" style="width:100%; height:6px;">
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px; color:#94a3b8; font-weight:600;" data-i18n="voice_speed">Speed:</span>
+                    <button class="voice-speed-btn" onclick="onVoiceSpeed(0.8)" data-speed="0.8">0.8x</button>
+                    <button class="voice-speed-btn active" onclick="onVoiceSpeed(1.0)" data-speed="1.0">1x</button>
+                    <button class="voice-speed-btn" onclick="onVoiceSpeed(1.2)" data-speed="1.2">1.2x</button>
+                    <button class="voice-speed-btn" onclick="onVoiceSpeed(1.5)" data-speed="1.5">1.5x</button>
+                </div>
             </div>
         </div>
 
@@ -738,7 +811,10 @@
         <!-- Actions -->
         <div class="sidebar-section" style="border-bottom:none;">
             <button class="btn-primary" id="navigate-btn" onclick="startNavigation()">
-                <i class="fas fa-play" style="margin-right:6px;"></i><span data-i18n="start_nav">Start Navigation</span>
+                <i class="fas fa-location-arrow" style="margin-right:6px;"></i><span data-i18n="start_nav">Start Navigation</span>
+            </button>
+            <button class="btn-secondary" id="demo-btn" onclick="startDemoNavigation()" style="margin-top:6px;">
+                <i class="fas fa-gamepad" style="margin-right:6px;"></i><span data-i18n="demo_mode">Demo Mode</span>
             </button>
             <button class="btn-secondary" id="hide-ui-btn" onclick="toggleFullUI()" style="margin-top:8px;">
                 <i class="fas fa-expand" style="margin-right:6px;"></i><span data-i18n="fullscreen">Fullscreen / Hide UI</span>
@@ -846,6 +922,13 @@
             <div class="nav-instr-dist" id="nav-dist">—</div>
         </div>
 
+        <!-- Quick Mute Button (visible during navigation) -->
+        <div id="voice-controls">
+            <button class="voice-mute-btn" id="voice-mute-btn" onclick="toggleMute()">
+                <i class="fas fa-volume-up" id="voice-mute-icon"></i>
+            </button>
+        </div>
+
         <!-- View Controls -->
         <div id="view-controls">
             <button class="map-btn" id="follow-btn" onclick="toggleFollowView()" data-i18n-title="follow_vehicle" style="display:none;">
@@ -950,6 +1033,12 @@
             // Buttons
             'start_nav':        { de: 'Navigation starten',  en: 'Start Navigation' },
             'stop_nav':         { de: 'Navigation stoppen',  en: 'Stop Navigation' },
+            'demo_mode':        { de: 'Demo-Modus',          en: 'Demo Mode' },
+            'stop_demo':        { de: 'Demo stoppen',        en: 'Stop Demo' },
+            'gps_nav_starting': { de: 'Starte GPS-Navigation...', en: 'Starting GPS navigation...' },
+            'gps_no_signal':    { de: 'Kein GPS-Signal! Bitte warten.', en: 'No GPS signal! Please wait.' },
+            'nav_mode_gps':     { de: 'GPS-Modus',           en: 'GPS Mode' },
+            'nav_mode_demo':    { de: 'Demo-Modus',          en: 'Demo Mode' },
             'fullscreen':       { de: 'Vollbild / UI ausblenden', en: 'Fullscreen / Hide UI' },
             'clear_route':      { de: 'Route löschen',       en: 'Clear Route' },
             'how_to_use':       { de: 'Bedienung',           en: 'How to Use' },
@@ -991,6 +1080,8 @@
             'voice_on':         { de: 'Sprachnavigation AN', en: 'Voice navigation ON' },
             'voice_off':        { de: 'Sprachnavigation AUS', en: 'Voice navigation OFF' },
             'voice_not_supported': { de: 'Sprachausgabe wird von diesem Browser nicht unterstützt', en: 'Voice output is not supported by this browser' },
+            'voice_volume':     { de: 'Lautstärke', en: 'Volume' },
+            'voice_speed':      { de: 'Tempo:', en: 'Speed:' },
             'voice_x_m_right':  { de: 'In {d} Metern rechts abbiegen', en: 'In {d} meters, turn right' },
             'voice_x_km_right': { de: 'In {d} Kilometern rechts abbiegen', en: 'In {d} kilometers, turn right' },
             'voice_x_m_left':   { de: 'In {d} Metern links abbiegen', en: 'In {d} meters, turn left' },
@@ -1226,6 +1317,7 @@
         routes: [],             // [{geojson, distance, time, ascend, descend, color}]
         activeRouteIndex: -1,
         isNavigating: false,
+        navMode: 'gps', // 'gps' or 'demo'
         isFollowing: false,
         isDroneView: false,
         animProgress: 0,
@@ -1305,7 +1397,16 @@
         supported: ('speechSynthesis' in window),
 
         // Minimum interval between voice announcements (ms)
-        minInterval: 3000,
+        minInterval: 1500,
+
+        // Current volume (0.0 to 1.0)
+        volume: 1.0,
+
+        // Muted state
+        muted: false,
+
+        // Speech rate (0.8 to 1.5)
+        rate: 1.0,
 
         // Map internal turn types to i18n key suffixes
         turnKeyMap: {
@@ -1315,7 +1416,7 @@
             'sharp_left':   'sharp_left',
         },
 
-        // Track last announced distance bracket (e.g. '500', '200', '100', '50', '20')
+        // Track last announced distance bracket
         lastBracket: null,
 
         /**
@@ -1323,14 +1424,15 @@
          */
         speak(text) {
             if (!this.supported || !state.voiceNavEnabled || !text) return;
+            if (this.muted) return;
 
             window.speechSynthesis.cancel();
 
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = i18n.lang === 'de' ? 'de-DE' : 'en-US';
-            utterance.rate = 1.0;
+            utterance.rate = this.rate;
             utterance.pitch = 1.0;
-            utterance.volume = 1.0;
+            utterance.volume = this.volume;
 
             const voices = window.speechSynthesis.getVoices();
             const langPrefix = i18n.lang === 'de' ? 'de' : 'en';
@@ -1344,7 +1446,7 @@
          * Get the distance bracket for a given distance.
          */
         getBracket(dist) {
-            if (dist <= 20) return 'now';
+            if (dist <= 15) return 'now';
             if (dist <= 50) return '50';
             if (dist <= 100) return '100';
             if (dist <= 200) return '200';
@@ -1394,7 +1496,7 @@
             } else if (!prevBracket || prevBracket === 'now') {
                 shouldSpeak = true;
             } else {
-                const bracketOrder = ['500', '300', '200', '100', '50', '20', 'now'];
+                const bracketOrder = ['500', '300', '200', '100', '50', 'now'];
                 if (bracketOrder.indexOf(bracket) > bracketOrder.indexOf(prevBracket)) {
                     shouldSpeak = true;
                 }
@@ -1502,7 +1604,58 @@
         showToast(enabled ? t('voice_on') : t('voice_off'), enabled ? 'success' : 'info');
     }
 
+    // ============================================
+    // VOLUME / MUTE CONTROLS
+    // ============================================
 
+    function toggleMute() {
+        VoiceNav.muted = !VoiceNav.muted;
+        const iconClass = VoiceNav.muted ? 'fas fa-volume-mute' : (VoiceNav.volume > 0.5 ? 'fas fa-volume-up' : 'fas fa-volume-down');
+        const btnClass = VoiceNav.muted ? 'muted' : '';
+
+        // Map button
+        const mapBtn = document.getElementById('voice-mute-btn');
+        const mapIcon = document.getElementById('voice-mute-icon');
+        if (mapBtn) { mapBtn.classList.toggle('muted', VoiceNav.muted); }
+        if (mapIcon) { mapIcon.className = iconClass; }
+
+        // Sidebar button
+        const sbBtn = document.getElementById('sidebar-mute-btn');
+        const sbIcon = document.getElementById('sidebar-mute-icon');
+        if (sbBtn) {
+            sbBtn.style.color = VoiceNav.muted ? '#ef4444' : '#10b981';
+            sbBtn.style.borderColor = VoiceNav.muted ? '#fca5a5' : '#e2e8f0';
+            sbBtn.style.background = VoiceNav.muted ? '#fef2f2' : '#fff';
+        }
+        if (sbIcon) { sbIcon.className = iconClass; }
+
+        if (VoiceNav.muted) {
+            window.speechSynthesis && window.speechSynthesis.cancel();
+        }
+    }
+
+    function onVolumeChange(val) {
+        const v = parseInt(val) / 100;
+        VoiceNav.volume = v;
+        document.getElementById('voice-volume-value').textContent = val + '%';
+        // Update mute icons based on volume (if not muted)
+        if (!VoiceNav.muted) {
+            const iconClass = v === 0 ? 'fas fa-volume-off' : (v < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up');
+            const mapIcon = document.getElementById('voice-mute-icon');
+            const sbIcon = document.getElementById('sidebar-mute-icon');
+            if (mapIcon) mapIcon.className = iconClass;
+            if (sbIcon) sbIcon.className = iconClass;
+        }
+    }
+
+    function onVoiceSpeed(speed) {
+        // Update voice rate globally
+        VoiceNav.rate = speed;
+        // Update active button
+        document.querySelectorAll('.voice-speed-btn').forEach(btn => {
+            btn.classList.toggle('active', parseFloat(btn.dataset.speed) === speed);
+        });
+    }
 
     // ============================================
     // MAP INITIALIZATION
@@ -3193,7 +3346,7 @@
     }
 
     // ============================================
-    // NAVIGATION & ANIMATION
+    // NAVIGATION — GPS (REAL) & DEMO MODE
     // ============================================
     function startNavigation() {
         if (state.routes.length === 0 || !state.routes[state.activeRouteIndex]) {
@@ -3206,7 +3359,208 @@
             return;
         }
 
+        if (!navigator.geolocation) {
+            showToast(t('geo_not_supported'), 'error');
+            return;
+        }
+
         state.isNavigating = true;
+        state.navMode = 'gps';
+        state.isFollowing = true;
+
+        // Reset voice navigation state
+        VoiceNav.reset();
+        VoiceNav.init();
+
+        const route = state.routes[state.activeRouteIndex];
+
+        // Create vehicle marker at last known GPS or route start
+        if (vehicleMarker) vehicleMarker.remove();
+
+        const el = document.createElement('div');
+        el.className = 'vehicle-marker';
+        el.innerHTML = getVehicleSVG(state.vehicle, 48);
+
+        const startCoord = (state.lastGpsLat && state.lastGpsLng)
+            ? [state.lastGpsLng, state.lastGpsLat]
+            : route.geojson.geometry.coordinates[0];
+
+        vehicleMarker = new maplibregl.Marker({ element: el, anchor: 'center', rotationAlignment: 'map' })
+            .setLngLat(startCoord)
+            .addTo(map);
+        vehicleMarker.getElement().style.display = 'none'; // hidden until GPS fix
+
+        // Show controls
+        document.getElementById('speed-display').classList.add('visible');
+        document.getElementById('nav-instructions').classList.add('visible');
+        document.getElementById('voice-controls').classList.add('visible');
+        document.getElementById('follow-btn').style.display = 'flex';
+        document.getElementById('drone-btn').style.display = 'flex';
+
+        // Update buttons
+        const btn = document.getElementById('navigate-btn');
+        btn.innerHTML = '<i class="fas fa-stop" style="margin-right:6px;"></i>' + t('stop_nav');
+        btn.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
+        btn.style.boxShadow = '0 4px 14px rgba(239,68,68,0.3)';
+
+        const demoBtn = document.getElementById('demo-btn');
+        demoBtn.disabled = true;
+        demoBtn.style.opacity = '0.4';
+
+        // Hide alt panel
+        document.getElementById('alt-panel').classList.remove('visible');
+
+        // Start GPS watchPosition
+        state.gpsFollowMode = true;
+        if (!state.gpsMarker) {
+            const gpsEl = document.createElement('div');
+            gpsEl.className = 'gps-marker heading-indicator';
+            state.gpsMarker = new maplibregl.Marker({ element: gpsEl, anchor: 'center' }).setLngLat([0, 0]).addTo(map);
+            state.gpsMarker.getElement().style.display = 'none';
+        }
+        document.getElementById('gps-track-btn').style.display = 'flex';
+        document.getElementById('gps-track-btn').classList.add('active-gps');
+
+        state.gpsWatchId = navigator.geolocation.watchPosition(
+            onNavGpsPositionUpdate,
+            (err) => {
+                if (err.code === 1) {
+                    showToast(t('geo_failed'), 'error');
+                    stopNavigation();
+                }
+                // Code 2/3: temporary, show waiting message
+                if (err.code === 2) showToast(t('gps_no_signal'), 'info');
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 1000,
+                timeout: 15000
+            }
+        );
+
+        showToast(t('gps_nav_starting'), 'success');
+    }
+
+    /**
+     * GPS position handler during GPS navigation mode.
+     * Moves the vehicle marker, updates speed, and follows the user.
+     */
+    let lastNavGpsTime = 0;
+    let lastNavGpsLat = null;
+    let lastNavGpsLng = null;
+
+    function onNavGpsPositionUpdate(position) {
+        if (!state.isNavigating || state.navMode !== 'gps') return;
+
+        const { longitude, latitude, accuracy, heading, speed } = position.coords;
+        const now = Date.now();
+
+        // Store for POI distance calculations
+        state.lastGpsLng = longitude;
+        state.lastGpsLat = latitude;
+
+        // Show vehicle marker on first fix
+        if (vehicleMarker && vehicleMarker.getElement().style.display === 'none') {
+            vehicleMarker.getElement().style.display = '';
+            vehicleMarker.setLngLat([longitude, latitude]);
+            map.flyTo({ center: [longitude, latitude], zoom: 16, duration: 1000 });
+        }
+
+        // Move vehicle to GPS position
+        if (vehicleMarker) {
+            vehicleMarker.setLngLat([longitude, latitude]);
+
+            // Calculate heading from GPS or from consecutive positions
+            let currentHeading = heading;
+            if (currentHeading === null || isNaN(currentHeading)) {
+                if (lastNavGpsLat !== null && (now - lastNavGpsTime) < 5000) {
+                    currentHeading = calcBearing(lastNavGpsLat, lastNavGpsLng, latitude, longitude);
+                }
+            }
+            if (currentHeading !== null && !isNaN(currentHeading)) {
+                state.lastGpsHeading = currentHeading;
+                vehicleMarker.setRotation(currentHeading);
+            }
+        }
+
+        // Calculate speed from GPS or consecutive positions
+        let displaySpeed = 0;
+        if (speed !== null && speed > 0) {
+            displaySpeed = Math.round(speed * 3.6); // m/s → km/h
+        } else if (lastNavGpsLat !== null && (now - lastNavGpsTime) > 0 && (now - lastNavGpsTime) < 5000) {
+            const dist = haversine(lastNavGpsLat, lastNavGpsLng, latitude, longitude);
+            const dt = (now - lastNavGpsTime) / 1000;
+            displaySpeed = Math.round((dist / dt) * 3.6);
+        }
+        document.getElementById('speed-value').textContent = Math.max(0, displaySpeed);
+
+        lastNavGpsTime = now;
+        lastNavGpsLat = latitude;
+        lastNavGpsLng = longitude;
+
+        // DeLorean easter egg
+        if (state.vehicle === 'delorean' && displaySpeed >= 88) {
+            document.getElementById('speed-display').style.boxShadow = '0 0 25px rgba(0,255,255,0.7), 0 0 50px rgba(0,150,255,0.3)';
+            document.getElementById('speed-display').style.borderColor = '#00ffff';
+        } else if (state.vehicle === 'delorean') {
+            document.getElementById('speed-display').style.boxShadow = '';
+            document.getElementById('speed-display').style.borderColor = '';
+        }
+
+        // Update navigation instructions
+        if (state.routes[state.activeRouteIndex]) {
+            const coords = state.routes[state.activeRouteIndex].geojson.geometry.coordinates;
+            const routeInfo = distToRoute(latitude, longitude, coords);
+            const nearestIdx = Math.min(routeInfo.nearestIdx + 2, coords.length - 1);
+            updateNavInstructions(coords, nearestIdx);
+
+            // Check if arrived (within 30m of destination)
+            const destCoord = coords[coords.length - 1];
+            const distToDest = haversine(latitude, longitude, destCoord[1], destCoord[0]);
+            if (distToDest < 30) {
+                VoiceNav.announceArrival();
+                showToast(t('arrived'), 'success');
+                stopNavigation();
+                return;
+            }
+        }
+
+        // Check off-route / wrong-way
+        checkRouteDeviation(latitude, longitude, heading);
+
+        // Update accuracy circle
+        updateAccuracyCircle(longitude, latitude, accuracy || 50);
+
+        // Camera follow
+        if (state.isFollowing) {
+            let camBearing = state.lastGpsHeading || 0;
+            let camPitch = 60;
+            if (state.isDroneView) {
+                state.droneRotation += 0.3;
+                camBearing = state.droneRotation % 360;
+                camPitch = 70;
+            }
+            map.jumpTo({
+                center: [longitude, latitude],
+                bearing: camBearing,
+                pitch: camPitch,
+            });
+        }
+    }
+
+    function startDemoNavigation() {
+        if (state.routes.length === 0 || !state.routes[state.activeRouteIndex]) {
+            showToast(t('calc_first'), 'error');
+            return;
+        }
+
+        if (state.isNavigating) {
+            stopNavigation();
+            return;
+        }
+
+        state.isNavigating = true;
+        state.navMode = 'demo';
         state.animProgress = 0;
         state.isFollowing = true;
 
@@ -3230,24 +3584,28 @@
         // Calculate animation speed: 1:1 real speed compressed by simSpeed multiplier
         const speed = state.customSpeed || vehicleConfigs[state.vehicle].defaultSpeed || 20;
         const totalDist = route.distance;
-        // Real travel time in seconds: distance(m) / speed(m/s)
         const speedMs = speed * 1000 / 3600;
         const totalTimeSec = totalDist / speedMs;
-        // Compress by simulation multiplier (30x default = watchable)
         const animDurationSec = totalTimeSec / state.simSpeed;
-        state.animSpeed = 1 / (animDurationSec * 60); // per frame at ~60fps
+        state.animSpeed = 1 / (animDurationSec * 60);
 
         // Show controls
         document.getElementById('speed-display').classList.add('visible');
         document.getElementById('nav-instructions').classList.add('visible');
+        document.getElementById('voice-controls').classList.add('visible');
         document.getElementById('follow-btn').style.display = 'flex';
         document.getElementById('drone-btn').style.display = 'flex';
 
-        // Update button
-        const btn = document.getElementById('navigate-btn');
-        btn.innerHTML = '<i class="fas fa-stop" style="margin-right:6px;"></i>' + t('stop_nav');
-        btn.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
-        btn.style.boxShadow = '0 4px 14px rgba(239,68,68,0.3)';
+        // Update buttons
+        const demoBtn = document.getElementById('demo-btn');
+        demoBtn.innerHTML = '<i class="fas fa-stop" style="margin-right:6px;"></i>' + t('stop_demo');
+        demoBtn.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+        demoBtn.style.color = '#fff';
+        demoBtn.style.borderColor = '#f59e0b';
+
+        const navBtn = document.getElementById('navigate-btn');
+        navBtn.disabled = true;
+        navBtn.style.opacity = '0.4';
 
         // Hide alt panel
         document.getElementById('alt-panel').classList.remove('visible');
@@ -3259,16 +3617,30 @@
     }
 
     function stopNavigation() {
+        const wasGps = state.navMode === 'gps';
+
         state.isNavigating = false;
         state.isFollowing = false;
         state.isDroneView = false;
+        state.navMode = 'gps'; // reset default
 
         // Cancel any pending voice
         VoiceNav.reset();
 
+        // Cancel animation frame (demo mode)
         if (animFrameId) {
             cancelAnimationFrame(animFrameId);
             animFrameId = null;
+        }
+
+        // Stop GPS watch (GPS mode)
+        if (wasGps && state.gpsWatchId !== null) {
+            navigator.geolocation.clearWatch(state.gpsWatchId);
+            state.gpsWatchId = null;
+            // Reset nav GPS tracking vars
+            lastNavGpsTime = 0;
+            lastNavGpsLat = null;
+            lastNavGpsLng = null;
         }
 
         if (vehicleMarker) {
@@ -3282,17 +3654,32 @@
         // Hide controls
         document.getElementById('speed-display').classList.remove('visible');
         document.getElementById('nav-instructions').classList.remove('visible');
+        document.getElementById('voice-controls').classList.remove('visible');
         document.getElementById('follow-btn').classList.remove('active');
         document.getElementById('drone-btn').classList.remove('active');
 
         // Re-show alt panel if multiple routes exist
         if (state.routes.length > 1) document.getElementById('alt-panel').classList.add('visible');
 
-        // Update button
-        const btn = document.getElementById('navigate-btn');
-        btn.innerHTML = '<i class="fas fa-play" style="margin-right:6px;"></i>' + t('start_nav');
-        btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-        btn.style.boxShadow = '0 4px 14px rgba(16,185,129,0.3)';
+        // Reset both buttons
+        const navBtn = document.getElementById('navigate-btn');
+        navBtn.innerHTML = '<i class="fas fa-location-arrow" style="margin-right:6px;"></i>' + t('start_nav');
+        navBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        navBtn.style.boxShadow = '0 4px 14px rgba(16,185,129,0.3)';
+        navBtn.disabled = false;
+        navBtn.style.opacity = '1';
+
+        const demoBtn = document.getElementById('demo-btn');
+        demoBtn.innerHTML = '<i class="fas fa-gamepad" style="margin-right:6px;"></i>' + t('demo_mode');
+        demoBtn.style.background = '';
+        demoBtn.style.color = '';
+        demoBtn.style.borderColor = '';
+        demoBtn.disabled = false;
+        demoBtn.style.opacity = '1';
+
+        // DeLorean cleanup
+        document.getElementById('speed-display').style.boxShadow = '';
+        document.getElementById('speed-display').style.borderColor = '';
     }
 
     function animateNavigation() {
@@ -3514,22 +3901,47 @@
     // ============================================
 
     /**
-     * Calculate the minimum distance (in meters) from a point to the route polyline.
-     * Also returns the bearing at the nearest point on the route.
+     * Calculate the minimum distance (in meters) from a point to the route polyline
+     * using proper point-to-line-segment distance.
+     * Also returns the bearing at the nearest point and the nearest index.
      */
     function distToRoute(lat, lon, coords) {
         let minDist = Infinity;
         let routeBearingAtNearest = 0;
+        let nearestIdx = 0;
 
         for (let i = 0; i < coords.length - 1; i++) {
-            const d = haversine(lat, lon, coords[i][1], coords[i][0]);
+            const lat1 = coords[i][1], lon1 = coords[i][0];
+            const lat2 = coords[i+1][1], lon2 = coords[i+1][0];
+
+            // Point-to-line-segment distance
+            const A = lat - lat1, B = lon - lon1;
+            const C = lat2 - lat1, D = lon2 - lon1;
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+
+            let projLat, projLon;
+            if (lenSq === 0) {
+                projLat = lat1; projLon = lon1;
+            } else {
+                let param = dot / lenSq;
+                param = Math.max(0, Math.min(1, param));
+                projLat = lat1 + param * C;
+                projLon = lon1 + param * D;
+            }
+
+            const d = haversine(lat, lon, projLat, projLon);
             if (d < minDist) {
                 minDist = d;
-                // Calculate route bearing at this segment
-                routeBearingAtNearest = calcBearing(coords[i][1], coords[i][0], coords[Math.min(i+3, coords.length-1)][1], coords[Math.min(i+3, coords.length-1)][0]);
+                nearestIdx = i;
+                routeBearingAtNearest = calcBearing(
+                    coords[i][1], coords[i][0],
+                    coords[Math.min(i + 3, coords.length - 1)][1],
+                    coords[Math.min(i + 3, coords.length - 1)][0]
+                );
             }
         }
-        return { dist: minDist, routeBearing: routeBearingAtNearest };
+        return { dist: minDist, routeBearing: routeBearingAtNearest, nearestIdx };
     }
 
     /**
@@ -3684,6 +4096,9 @@
             return;
         }
 
+        // Don't start standalone GPS if GPS navigation is active
+        if (state.isNavigating && state.navMode === 'gps') return;
+
         // Show button, mark active
         const btn = document.getElementById('gps-track-btn');
         btn.style.display = 'flex';
@@ -3721,6 +4136,9 @@
     }
 
     function onGpsPositionUpdate(position) {
+        // Skip if GPS navigation is active (has its own handler)
+        if (state.isNavigating && state.navMode === 'gps') return;
+
         const { longitude, latitude, accuracy, heading, speed } = position.coords;
 
         // Store GPS position for POI distance calculations
@@ -3753,6 +4171,14 @@
 
         // Check for route deviation / wrong-way during navigation
         checkRouteDeviation(latitude, longitude, heading);
+
+        // Update voice turn-by-turn instructions based on nearest route point
+        if (state.isNavigating && state.routes[state.activeRouteIndex]) {
+            const coords = state.routes[state.activeRouteIndex].geojson.geometry.coordinates;
+            const routeInfo = distToRoute(latitude, longitude, coords);
+            const nearestIdx = Math.min(routeInfo.nearestIdx + 2, coords.length - 1);
+            updateNavInstructions(coords, nearestIdx);
+        }
 
         // Follow mode: center map on position
         if (state.gpsFollowMode) {
