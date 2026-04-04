@@ -1,6 +1,6 @@
 {
-    "name": "KreherNavi — Cargo Bike Navigation",
-    "short_name": "KreherNavi",
+    "name": "CargoNavi — Cargo Bike Navigation",
+    "short_name": "CargoNavi",
     "description": "Cargo Bike Navigation System with route planning, satellite map, POI layers, and turn-by-turn guidance",
     "start_url": "./navigation_v3.html",
     "scope": "./",
