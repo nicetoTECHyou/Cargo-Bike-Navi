@@ -1,5 +1,5 @@
-// KreherNavi — Service Worker v1
-const CACHE_NAME = 'krehernavi-v2';
+// CargoNavi — Service Worker v1
+const CACHE_NAME = 'cargonavi-v3';
 
 // Files to pre-cache on install
 // NOTE: Do NOT include './' — GitHub Pages has no index.html and would return 404
