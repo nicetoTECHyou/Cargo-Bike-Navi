@@ -25,5 +25,4 @@ Hier ist eine Übersicht der geplanten Funktionen und Verbesserungen für das Pr
 
 ---
 
-> [!TIP]
-> Hast du Ideen oder Verbesserungsvorschläge? Eröffne gerne ein **Issue** oder beteilige dich an den **Discussions**!
+**Bugs, Fragen oder Ideen?** → [![Discord](https://img.shields.io/badge/Discord-nicetoTECHyou-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/users/nicetotechyou)
