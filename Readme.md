@@ -170,6 +170,8 @@ Dieses Projekt wurde mit Unterstützung von **Z.ai**, einem leistungsstarken KI-
 
 [![Powered by Z.ai](https://img.shields.io/badge/Powered_by-Z.ai-0ea5e9?style=for-the-badge)](https://chat.z.ai)
 
+**Bugs, Fragen oder Ideen?** → [![Discord](https://img.shields.io/badge/Discord-nicetoTECHyou-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/users/nicetotechyou)
+
 ---
 
 ## 🔗 Social Media & Lizenz
