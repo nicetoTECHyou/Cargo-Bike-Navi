@@ -125,6 +125,7 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 
 **Neu:**
 - 🎯 **Auto-Center:** Karte zentriert sich automatisch auf deinem Standort beim Laden der App
+- 📍 **Auto GPS-Tracking:** GPS-Tracking startet automatisch beim Laden — kein Klick nötig
 - 🔄 **Sanfter Flug:** Smooth flyTo-Animation beim ersten Zentrieren (1,5s)
 
 **Technisch:**
