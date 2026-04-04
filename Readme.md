@@ -166,9 +166,7 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 
 ## 🗺️ Roadmap
 
-[![Twitch Roadmap](https://img.shields.io/badge/🚲_Twitch_Integration-Roadmap-a855f7?style=for-the-badge)](TWITCH_INTEGRATION_SPEC.md)
-
-**Community-gesteuerte Navigation via Twitch Chat** — Der Chat reichert per `!waypoint` Orte ein, der Streamer bestätigt in einem Admin-Panel, CargoNavi berechnet die Route und navigiert live. Komplett ohne Backend.
+[![Roadmap](https://img.shields.io/badge/🚀_Roadmap-Zukünftige_Pläne-a855f7?style=for-the-badge)](roadmap.md) [![Twitch Spec](https://img.shields.io/badge/🚲_Twitch_Integration-Spec_Doc-7C3AED?style=for-the-badge)](TWITCH_INTEGRATION_SPEC.md)
 
 ---
 
