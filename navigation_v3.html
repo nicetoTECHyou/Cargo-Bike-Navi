@@ -1754,6 +1754,14 @@
             // Show GPS tracking button if geolocation is available
             if (navigator.geolocation) {
                 document.getElementById('gps-track-btn').style.display = 'flex';
+
+                // Auto-center on user location on first load
+                navigator.geolocation.getCurrentPosition(pos => {
+                    map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14, duration: 1500 });
+                }, () => {}, { enableHighAccuracy: true, timeout: 8000 });
+
+                // Auto-start GPS tracking
+                startGpsTracking();
             }
 
             // Add POI sources (initially empty)
