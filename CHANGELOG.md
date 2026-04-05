@@ -18,7 +18,13 @@
   - `drivenPathCoords` array stores all recorded GPS coordinates
 - **Separate Marker Variables** — `navGpsMarker` (GPS mode) is now independent from `vehicleMarker` (Demo mode)
 
+### Fixed
+- **Alternative Routes Panel Not Showing** — BRouter API sometimes returns identical routes for different `alternativeidx` values (confirmed: `car-fast` altidx=0 and altidx=2 return the exact same coordinates with the same distance). Added `deduplicateRoutes()` function that creates a coordinate fingerprint from the first and last 5 points of each route and filters out duplicates. This ensures the alternative routes panel only shows genuinely different route options.
+- **Route Colors After Dedup** — `showAlternativePanel()` now reassigns `ROUTE_COLORS` to each route based on its new index after deduplication, preventing incorrect color assignments.
+
 ### Changed
+- **`recalculateRoute()`** — now calls `deduplicateRoutes()` on fetched routes before storing them in `state.routes`.
+- **`showAlternativePanel()`** — reassigns route colors after dedup to ensure correct color mapping.
 - **`startNavigation()`** — no longer creates a `vehicleMarker` with vehicle icon; instead creates a `navGpsMarker` with the simple GPS dot. Also initializes `drivenPathCoords = []` and clears the driven path layer.
 - **`onNavGpsPositionUpdate()`** — moves `navGpsMarker` instead of `vehicleMarker`. Removed vehicle rotation code. Added driven path recording with 3m minimum distance threshold.
 - **`stopNavigation()`** — now also removes `navGpsMarker`, clears `drivenPathCoords`, and calls `clearDrivenPathLayer()`.
@@ -28,6 +34,7 @@
 - **Why no vehicle icon in GPS mode?** GPS signals can be noisy — the heading jumps rapidly between updates, causing the vehicle icon to spin erratically. A simple dot marker provides a much cleaner navigation experience.
 - **Why orange for driven path?** Orange contrasts clearly against both the green planned route and the map background (satellite and street styles), while being distinct from the blue GPS marker.
 - **3m threshold for recording:** Balances path detail with storage efficiency. At typical cycling speeds (15-25 km/h) with 1s GPS updates, this captures nearly every point without redundancy at stops.
+- **Route fingerprint deduplication:** Using first/last 5 coordinates as a fingerprint is fast (O(1) comparison via Set) and catches both exact duplicates and near-identical routes that BRouter returns when it has no genuine alternative.
 
 ---
 

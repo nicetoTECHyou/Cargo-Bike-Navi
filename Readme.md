@@ -128,15 +128,17 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 - 🚗 **Fahrzeug-Icons nur im Demo-Modus:** Fahrzeug-Icons (FRANKY, Mountain Bike, Racing Bike, DeLorean) werden jetzt ausschließlich im Demo-Modus angezeigt
 - 🛤️ **Fahrspur-Tracking:** Die tatsächlich gefahrene GPS-Route wird als orange Linie auf der Karte eingezeichnet — die geplante Route bleibt grün, so dass du den Vergleich direkt sehen kannst
 
+**Behoben:**
+- 🐛 **Alternativrouten-Panel zeigte nicht:** BRouter API liefert manchmal identische Routen für verschiedene `alternativeidx`-Werte (z.B. car-fast altidx=0 und altidx=2 geben exakt die gleichen Koordinaten zurück). Neue `deduplicateRoutes()`-Funktion entfernt Duplikate per Koordinaten-Fingerprint — das Panel zeigt jetzt nur wirklich unterschiedliche Routen
+
 **Technisch:**
 - Neuer `gps-nav-marker` CSS-Stil mit Puls-Animation für die GPS-Navigation
 - Neue `driven-path` GeoJSON-Quelle und Layer (orange, 5px breit mit dunklem Outline)
+- `deduplicateRoutes()` Hilfsfunktion mit Koordinaten-Fingerprint (erste + letzte 5 Punkte)
 - `updateDrivenPathLayer()` und `clearDrivenPathLayer()` Hilfsfunktionen hinzugefügt
 - GPS-Punkte werden nur bei ≥3m Abstand aufgezeichnet (verhindert Datenmüll bei Standstill)
+- Route-Farben werden nach Deduplikation neu zugewiesen
 - Service Worker Cache-Version auf `v35` hochgestuft
-
-**Zuvor behoben (Bugfix Release):**
-- 🐛 15 Bugs behoben: Race Condition bei Routenberechnung, Geister-Routen, GPS-Leaks, XSS, Performance und mehr
 
 ### [v3.4] — Auto-Center & UX-Verbesserungen
 **Datum:** 2026-04-05

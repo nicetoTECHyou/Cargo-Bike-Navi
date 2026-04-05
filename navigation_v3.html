@@ -2457,6 +2457,28 @@
         }
     }
 
+    /**
+     * Deduplicate routes by comparing their coordinate fingerprints.
+     * Routes with identical first 5 and last 5 coordinates are considered duplicates.
+     * Preserves the first occurrence (lowest alternative index).
+     */
+    function deduplicateRoutes(routes) {
+        const seen = new Set();
+        return routes.filter(route => {
+            if (!route || !route.geojson || !route.geojson.geometry) return false;
+            const coords = route.geojson.geometry.coordinates;
+            if (!coords || coords.length < 2) return false;
+            // Create a fingerprint from first 5 + last 5 coordinates (enough to detect duplicates)
+            const sampleSize = Math.min(5, coords.length);
+            let fingerprint = '';
+            for (let i = 0; i < sampleSize; i++) fingerprint += coords[i][0].toFixed(6) + ',' + coords[i][1].toFixed(6) + ';';
+            for (let i = Math.max(0, coords.length - sampleSize); i < coords.length; i++) fingerprint += coords[i][0].toFixed(6) + ',' + coords[i][1].toFixed(6) + ';';
+            if (seen.has(fingerprint)) return false;
+            seen.add(fingerprint);
+            return true;
+        });
+    }
+
     function calcLineDistance(coords) {
         let dist = 0;
         for (let i = 1; i < coords.length; i++) {
@@ -2502,6 +2524,10 @@
                 state.routes.push(r.value);
             }
         });
+
+        // Deduplicate routes — BRouter sometimes returns identical routes for different alternativeidx values
+        // (e.g., car-fast altidx=0 and altidx=2 return the exact same coordinates)
+        state.routes = deduplicateRoutes(state.routes);
 
         if (state.routes.length === 0) {
             showToast(t('no_route'), 'error');
@@ -2622,6 +2648,11 @@
             panel.classList.remove('visible');
             return;
         }
+
+        // Reassign colors in case deduplication changed the order/indices
+        state.routes.forEach((route, i) => {
+            route.color = ROUTE_COLORS[i] || ROUTE_COLORS[0];
+        });
 
         state.routes.forEach((route, i) => {
             const distKm = (route.distance / 1000).toFixed(1);
