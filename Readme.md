@@ -34,8 +34,9 @@ CargoNavi ist eine **Progressive Web App**. Du kannst sie ohne App Store direkt 
 
 ### 🗺️ Navigation & Karten
 * **Hochauflösende Satellitenbilder:** Nutzung von ESRI World Imagery.
-* **Echte GPS-Navigation:** Start Navigation nutzt das echte GPS-Signal deines Geräts — Fahrzeugmarker folgt deiner Position in Echtzeit.
-* **Demo-Modus:** Separater Button zum virtuellen Abfahren der Route mit animiertem Fahrzeug.
+* **Echte GPS-Navigation:** Start Navigation nutzt das echte GPS-Signal deines Geräts — blauer GPS-Punkt folgt deiner Position in Echtzeit.
+* **Demo-Modus:** Separater Button zum virtuellen Abfahren der Route mit animiertem Fahrzeug-Icon.
+* **Fahrspur-Tracking:** Gefahrene GPS-Route wird als orange Linie auf der Karte eingezeichnet — geplante Route bleibt in Grün.
 * **Intelligentes Routing:** Fahrradoptimierte Strecken via BRouter-API.
 * **Interaktive Planung:** Wegpunkte per Klick & Drag setzen; bis zu 3 Alternativrouten.
 * **Echte Geschwindigkeit:** GPS-Modus zeigt deine reale Geschwindigkeit in km/h an.
@@ -118,6 +119,24 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 ---
 
 ## 🚀 Changelog
+
+### [v3.5] — GPS-Nav Marker & Fahrspur-Tracking
+**Datum:** 2026-04-05
+
+**Neu:**
+- 📍 **GPS-Navigationsmarker:** In der GPS-Navigation wird jetzt ein sauberer blauer GPS-Punkt angezeigt statt des Fahrzeug-Icons — kein nerviges Spinnen mehr bei schlechtem GPS-Signal
+- 🚗 **Fahrzeug-Icons nur im Demo-Modus:** Fahrzeug-Icons (FRANKY, Mountain Bike, Racing Bike, DeLorean) werden jetzt ausschließlich im Demo-Modus angezeigt
+- 🛤️ **Fahrspur-Tracking:** Die tatsächlich gefahrene GPS-Route wird als orange Linie auf der Karte eingezeichnet — die geplante Route bleibt grün, so dass du den Vergleich direkt sehen kannst
+
+**Technisch:**
+- Neuer `gps-nav-marker` CSS-Stil mit Puls-Animation für die GPS-Navigation
+- Neue `driven-path` GeoJSON-Quelle und Layer (orange, 5px breit mit dunklem Outline)
+- `updateDrivenPathLayer()` und `clearDrivenPathLayer()` Hilfsfunktionen hinzugefügt
+- GPS-Punkte werden nur bei ≥3m Abstand aufgezeichnet (verhindert Datenmüll bei Standstill)
+- Service Worker Cache-Version auf `v35` hochgestuft
+
+**Zuvor behoben (Bugfix Release):**
+- 🐛 15 Bugs behoben: Race Condition bei Routenberechnung, Geister-Routen, GPS-Leaks, XSS, Performance und mehr
 
 ### [v3.4] — Auto-Center & UX-Verbesserungen
 **Datum:** 2026-04-05

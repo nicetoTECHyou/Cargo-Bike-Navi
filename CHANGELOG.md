@@ -1,5 +1,69 @@
 # Changelog — CargoNavi Navigation System
 
+## [v3.5] — GPS Nav Marker & Driven Path Tracking - 2026-04-05
+
+### Added
+- **GPS Navigation Dot Marker** — GPS navigation mode now displays a clean blue pulsing dot instead of a rotating vehicle icon:
+  - New `.gps-nav-marker` CSS class with radial gradient and pulse animation
+  - Marker does not rotate with heading — prevents jarring spinning when GPS signal is weak
+  - Heading is still calculated and used for camera follow and voice navigation
+  - Marker is hidden until first GPS fix, then shown with a flyTo animation
+- **Driven Path Tracking** — The actual GPS-driven path is now recorded and displayed on the map:
+  - New `driven-path` GeoJSON source and two layers (line + outline) added to the map
+  - Driven path renders in orange (#f97316, 5px width) with a darker orange outline (#ea580c, 9px, 0.25 opacity)
+  - Planned route remains visible in its original green color — easy visual comparison between planned vs. driven path
+  - GPS points are only recorded when the user moves at least 3 meters (prevents clutter when stationary)
+  - `updateDrivenPathLayer()` updates the GeoJSON source on each new GPS point
+  - `clearDrivenPathLayer()` clears the driven path when navigation stops
+  - `drivenPathCoords` array stores all recorded GPS coordinates
+- **Separate Marker Variables** — `navGpsMarker` (GPS mode) is now independent from `vehicleMarker` (Demo mode)
+
+### Changed
+- **`startNavigation()`** — no longer creates a `vehicleMarker` with vehicle icon; instead creates a `navGpsMarker` with the simple GPS dot. Also initializes `drivenPathCoords = []` and clears the driven path layer.
+- **`onNavGpsPositionUpdate()`** — moves `navGpsMarker` instead of `vehicleMarker`. Removed vehicle rotation code. Added driven path recording with 3m minimum distance threshold.
+- **`stopNavigation()`** — now also removes `navGpsMarker`, clears `drivenPathCoords`, and calls `clearDrivenPathLayer()`.
+- **`sw.js`** — cache version bumped from `cargonavi-v4` to `cargonavi-v35`.
+
+### Design Decisions
+- **Why no vehicle icon in GPS mode?** GPS signals can be noisy — the heading jumps rapidly between updates, causing the vehicle icon to spin erratically. A simple dot marker provides a much cleaner navigation experience.
+- **Why orange for driven path?** Orange contrasts clearly against both the green planned route and the map background (satellite and street styles), while being distinct from the blue GPS marker.
+- **3m threshold for recording:** Balances path detail with storage efficiency. At typical cycling speeds (15-25 km/h) with 1s GPS updates, this captures nearly every point without redundancy at stops.
+
+---
+
+## [v3.4-hotfix] — Bugfix Release (15 Bugs) - 2026-04-05
+
+### Fixed — Critical
+- **Stale Route Bug (Race Condition)** — `recalculateRoute()` now uses a version counter to discard stale API responses. Previously, rapidly changing route parameters (profile, waypoints, dimensions) could cause an older, slower API call to overwrite a newer result, making the map briefly display an outdated route. [Bug #1]
+- **Ghost Routes from Previous Calculation** — `displayRoutes()` now clears all three MapLibre GeoJSON sources (route-0, route-1, route-2) before populating new ones. Previously, if a calculation returned fewer alternatives than before, stale route geometry could persist and flash on the map during transitions. [Bug #2]
+- **Browser HTTP Cache Serving Old Routes** — Added cache-busting timestamps (`_t=`) to all BRouter and OSRM API fetch URLs. Previously, requesting the same route twice could return a cached response with outdated routing data. [Bug #3]
+
+### Fixed — High
+- **Service Worker Serving Stale App Code** — Bumped `CACHE_NAME` from `cargonavi-v3` to `cargonavi-v4` and added auto-reload on `controllerchange` event. Previously, returning visitors could be served old JavaScript code after deployments. [Bug #4]
+- **GPS watchPosition Leak** — `startNavigation()` now clears any existing GPS watch before starting a new one. Previously, starting navigation while GPS tracking was active leaked the old watch, wasting battery and causing conflicting position updates. [Bug #5]
+
+### Fixed — Medium
+- **Nominatim Rate Limit Bypass** — `searchLocation()` now uses `throttledNominatim()` instead of calling `nominatimJSONP()` directly. Previously, rapid typing could flood Nominatim with requests exceeding their 1 req/sec policy, risking IP bans. [Bug #6]
+- **Duplicate Castle POIs** — Removed redundant `node["historic"="castle"]` filter from the Overpass API query for tourist attractions, which was already covered by the regex filter. [Bug #7]
+- **XSS via Apostrophes in POI Names** — `buildAddToRouteButtons()` now uses `data-name` attributes instead of inline string concatenation in onclick handlers. Previously, POI names containing apostrophes (e.g., "O'Brien's Pub") caused JavaScript syntax errors and broke the "Add as Destination/Via" buttons. [Bug #8]
+- **Dark Mode & Language Not Persisted** — `toggleDarkMode()` and `toggleLanguage()` now save preferences to `localStorage`. Preferences are restored on app load. Previously, every page reload reset to light mode and English. [Bug #9]
+- **distToRoute() Performance on Long Routes** — Implemented a sliding window optimization that limits the coordinate search to +/-500 points around the last known nearest position. Previously, the full linear scan over 10,000+ coordinates on every GPS update could cause janky frame rates on mobile. [Bug #10]
+
+### Fixed — Low
+- **Alternative Routes Invisible** — Non-active alternative routes now render at 0.4 opacity (previously 0, making them completely invisible). Users can now see alternative route options directly on the map. [Bug #11]
+- **Toast Notification Overflow** — `showToast()` now limits to 3 visible toasts, removing the oldest when exceeded. Previously, rapid toasts could stack up and cover the entire viewport. [Bug #12]
+- **Dead Code: VoiceNav.lastBracket** — Removed the unused `lastBracket` property from `VoiceNav.reset()` and the object declaration. [Bug #13]
+- **View Controls Stuck Hidden** — `clearRoute()` now uses `style.removeProperty('display')` instead of `style.display = 'none'`, avoiding CSS specificity conflicts that could keep 3D/compass controls hidden after clearing a route. [Bug #14]
+- **JSONP Callback Leak** — `nominatimJSONP()` now uses a unified `cleanup()` function that properly clears the timeout, global callback, and DOM script element in all cases (success, error, timeout). [Bug #15]
+
+### Technical Notes
+- Bug #1 fix: Global `routeCalcVersion` counter incremented at the start of each `recalculateRoute()` call; results are discarded if the counter has advanced by the time the API responds.
+- Bug #8 fix: `addPOIAsDestination()` and `addPOIAsVia()` now accept a DOM element parameter and read `el.dataset.name` instead of a string parameter.
+- Bug #9 fix: Preferences are stored under keys `cargonavi-dark` and `cargonavi-lang` in `localStorage`.
+- Bug #10 fix: Search window state stored in `state._lastNearestIdx`, reset on `clearRoute()`.
+
+---
+
 ## [v3.4] — Auto-Center & Auto GPS Tracking - 2026-04-05
 
 ### Added

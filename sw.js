@@ -1,5 +1,5 @@
 // CargoNavi — Service Worker v1
-const CACHE_NAME = 'cargonavi-v3';
+const CACHE_NAME = 'cargonavi-v35'; // v3.5 — GPS nav marker + driven path layer
 
 // Files to pre-cache on install
 // NOTE: Do NOT include './' — GitHub Pages has no index.html and would return 404

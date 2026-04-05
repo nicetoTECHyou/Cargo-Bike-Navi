@@ -268,6 +268,21 @@
             70%  { box-shadow:0 0 0 16px rgba(59,130,246,0); }
             100% { box-shadow:0 0 0 16px rgba(59,130,246,0); }
         }
+
+        /* GPS Navigation Marker — larger dot for active GPS nav */
+        .gps-nav-marker {
+            width:18px; height:18px; border-radius:50%;
+            background: radial-gradient(circle at 40% 40%, #60a5fa, #2563eb);
+            border:3px solid #fff;
+            box-shadow:0 2px 8px rgba(37,99,235,0.5), 0 0 0 0 rgba(37,99,235,0.4);
+            cursor:pointer;
+            animation: gps-nav-pulse 2s ease-out infinite;
+        }
+        @keyframes gps-nav-pulse {
+            0%   { box-shadow:0 2px 8px rgba(37,99,235,0.5), 0 0 0 0   rgba(37,99,235,0.4); }
+            70%  { box-shadow:0 2px 8px rgba(37,99,235,0.5), 0 0 0 14px rgba(37,99,235,0); }
+            100% { box-shadow:0 2px 8px rgba(37,99,235,0.5), 0 0 0 14px rgba(37,99,235,0); }
+        }
         .map-btn.active-gps { background:#3b82f6; color:#fff; }
 
         /* ============================================ */
@@ -1236,6 +1251,8 @@
 
     function toggleLanguage() {
         i18n.lang = i18n.lang === 'en' ? 'de' : 'en';
+        // Bug #9 fix: Persist language preference to localStorage
+        localStorage.setItem('cargonavi-lang', i18n.lang);
         applyLanguage();
     }
 
@@ -1354,7 +1371,10 @@
 
     let map = null;
     let vehicleMarker = null;
+    let navGpsMarker = null;      // GPS dot marker used during GPS navigation mode
+    let drivenPathCoords = [];    // Record of driven GPS path coordinates
     let animFrameId = null;
+    let routeCalcVersion = 0;  // Version counter to discard stale route calculations (Bug #1)
 
     // ============================================
     // VEHICLE CONFIGS
@@ -1417,7 +1437,7 @@
         },
 
         // Track last announced distance bracket
-        lastBracket: null,
+        // Bug #13 fix: Removed unused lastBracket property (dead code)
 
         /**
          * Speak a text string in the current language.
@@ -1579,7 +1599,7 @@
             state.lastVoiceDistKey = '';
             state.lastVoiceTime = 0;
             state.lastOffRouteWarning = 0;
-            this.lastBracket = null;
+            // Bug #13 fix: Removed this.lastBracket = null; (dead code)
             window.speechSynthesis && window.speechSynthesis.cancel();
         },
 
@@ -1792,6 +1812,33 @@
                     filter: ['==', '$type', 'LineString']
                 });
             }
+
+            // Add driven path source & layer (for GPS navigation — shows actual driven path)
+            map.addSource('driven-path', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
+            map.addLayer({
+                id: 'driven-path-line',
+                type: 'line',
+                source: 'driven-path',
+                layout: { 'line-cap':'round', 'line-join':'round' },
+                paint: {
+                    'line-color': '#f97316', // orange — driven path
+                    'line-width': 5,
+                    'line-opacity': 0.85,
+                    'line-dasharray': [0],
+                }
+            });
+            map.addLayer({
+                id: 'driven-path-outline',
+                type: 'line',
+                source: 'driven-path',
+                layout: { 'line-cap':'round', 'line-join':'round' },
+                paint: {
+                    'line-color': '#ea580c', // darker orange outline
+                    'line-width': 9,
+                    'line-opacity': 0.25,
+                },
+                filter: ['==', '$type', 'LineString']
+            });
 
             // Add waypoint source
             map.addSource('waypoints', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
@@ -2011,21 +2058,26 @@
     function nominatimJSONP(params) {
         return new Promise((resolve, reject) => {
             const cbName = '__nominatim_cb_' + (++nominatimCallbackId);
-            const timeout = setTimeout(() => {
-                delete window[cbName];
+            let timeout = setTimeout(() => {
+                cleanup();
                 reject(new Error('Nominatim timeout'));
             }, 10000);
             window[cbName] = (data) => {
-                clearTimeout(timeout);
-                delete window[cbName];
+                cleanup();
                 resolve(data);
             };
             params.json_callback = cbName;
             const script = document.createElement('script');
             script.src = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams(params);
-            script.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error('JSONP failed')); };
+            // Bug #15 fix: Proper cleanup function to prevent callback/timer leaks
+            const cleanup = () => {
+                clearTimeout(timeout);
+                delete window[cbName];
+                timeout = null;
+                if (script.parentNode) script.parentNode.removeChild(script);
+            };
+            script.onerror = () => { cleanup(); reject(new Error('JSONP failed')); };
             document.head.appendChild(script);
-            script.onload = () => document.head.removeChild(script);
         });
     }
 
@@ -2043,7 +2095,8 @@
         }
 
         try {
-            const results = await nominatimJSONP({
+            // Bug #6 fix: Use throttledNominatim instead of direct nominatimJSONP to respect rate limits
+            const results = await throttledNominatim({
                 q: query, format: 'json', limit: '5', addressdetails: '1'
             });
             showSearchResults(results, type);
@@ -2291,7 +2344,7 @@
             // BRouter doesn't directly support speed override, but we adjust timing
         }
 
-        let url = `https://brouter.de/brouter?lonlats=${coords}&profile=${profileParams}&alternativeidx=${alternativeIdx}&format=geojson`;
+        let url = `https://brouter.de/brouter?lonlats=${coords}&profile=${profileParams}&alternativeidx=${alternativeIdx}&format=geojson&_t=${Date.now()}`;
 
         // Add vehicle constraints as URL params for BRouter
         if (state.vehicleWidth && state.vehicleWidth > 0.5) {
@@ -2375,7 +2428,7 @@
         if (state.profile === 'car-fast' || state.profile === 'car-eco') profile = 'driving';
         else if (state.profile === 'walk') profile = 'foot';
 
-        let url = `https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson&alternatives=true`;
+        let url = `https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson&alternatives=true&_t=${Date.now()}`;
         if (state.avoidHighways) url += '&exclude=motorway';
 
         try {
@@ -2425,6 +2478,9 @@
     async function recalculateRoute() {
         if (state.waypoints.length < 2) return;
 
+        // Increment version so stale results can be discarded (Bug #1 fix)
+        const myVersion = ++routeCalcVersion;
+
         // Show loading
         const btn = document.getElementById('navigate-btn');
         btn.innerHTML = '<span class="spinner"></span> ' + t('calculating');
@@ -2436,6 +2492,9 @@
             calculateRoute(1),
             calculateRoute(2),
         ]);
+
+        // Discard results if a newer recalculation started while we were waiting (Bug #1 fix)
+        if (myVersion !== routeCalcVersion) return;
 
         state.routes = [];
         results.forEach(r => {
@@ -2469,6 +2528,15 @@
     }
 
     function displayRoutes() {
+        // Bug #2 fix: Clear ALL route sources first to prevent stale data (Bug #2)
+        for (let i = 0; i < 3; i++) {
+            const source = map.getSource(`route-${i}`);
+            if (source) {
+                source.setData({ type: 'FeatureCollection', features: [] });
+            }
+        }
+
+        // Now populate the ones we actually have
         state.routes.forEach((route, i) => {
             const source = map.getSource(`route-${i}`);
             if (source && route.geojson) {
@@ -2482,10 +2550,10 @@
             const isActive = i === state.activeRouteIndex;
             if (map.getLayer(`route-line-${i}`)) {
                 map.setPaintProperty(`route-line-${i}`, 'line-width', isActive ? 6 : 3);
-                map.setPaintProperty(`route-line-${i}`, 'line-opacity', isActive ? 1 : 0);
+                map.setPaintProperty(`route-line-${i}`, 'line-opacity', isActive ? 1 : 0.4);
             }
             if (map.getLayer(`route-outline-${i}`)) {
-                map.setPaintProperty(`route-outline-${i}`, 'line-opacity', isActive ? 0.3 : 0);
+                map.setPaintProperty(`route-outline-${i}`, 'line-opacity', isActive ? 0.3 : 0.1);
             }
         });
     }
@@ -2729,26 +2797,30 @@
     // Shared "Add to Route" buttons for POI popups
     function buildAddToRouteButtons(lat, lng, name) {
         const safeName = escapeXml(name || 'POI');
+        // Bug #8 fix: Use data attributes to avoid XSS from single quotes in POI names
         return '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;display:flex;gap:6px;">' +
-            '<button onclick="addPOIAsDestination(' + lat + ',' + lng + ',\'' + safeName + '\')" ' +
+            '<button onclick="addPOIAsDestination(' + lat + ',' + lng + ',this)" ' +
+                'data-name="' + safeName + '" ' +
                 'style="flex:1;padding:6px 8px;border:none;border-radius:6px;background:#10b981;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">' +
                 '<i class=\'fas fa-flag-checkered\'></i> ' + t('add_as_destination') + '</button>' +
-            '<button onclick="addPOIAsVia(' + lat + ',' + lng + ',\'' + safeName + '\')" ' +
+            '<button onclick="addPOIAsVia(' + lat + ',' + lng + ',this)" ' +
+                'data-name="' + safeName + '" ' +
                 'style="flex:1;padding:6px 8px;border:none;border-radius:6px;background:#3b82f6;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">' +
                 '<i class=\'fas fa-plus-circle\'></i> ' + t('add_as_via') + '</button>' +
             '</div>';
     }
 
-    function addPOIAsDestination(lat, lng, name) {
+    function addPOIAsDestination(lat, lng, el) {
+        const name = el && el.dataset ? el.dataset.name : (lat.toFixed(5) + ', ' + lng.toFixed(5));
         setWaypoint('end', lng, lat);
-        document.getElementById('end-input').value = name || (lat.toFixed(5) + ', ' + lng.toFixed(5));
+        document.getElementById('end-input').value = name;
         recalculateRoute();
         showToast(t('end_set'), 'success');
-        // Close all popups
         document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
     }
 
-    function addPOIAsVia(lat, lng, name) {
+    function addPOIAsVia(lat, lng, el) {
+        const name = el && el.dataset ? el.dataset.name : (lat.toFixed(5) + ', ' + lng.toFixed(5));
         setWaypoint('via', lng, lat);
         recalculateRoute();
         showToast(t('via_added'), 'success');
@@ -3068,7 +3140,7 @@
                     node["historic"~"castle|monument|ruins|archaeological_site|fort|heritage|church|cathedral|memorial|wayside_shrine|wayside_cross"](${bbox});
                     node["amenity"="theatre"](${bbox});
                     node["amenity"="arts_centre"](${bbox});
-                    node["historic"="castle"](${bbox});
+                    // Bug #7 fix: Removed duplicate node["historic"="castle"](${bbox}); — already covered by regex above
                     way["tourism"~"attraction|museum|artwork|gallery"](${bbox});
                     relation["tourism"~"attraction|museum"](${bbox});
                 );
@@ -3354,6 +3426,45 @@
     }
 
     // ============================================
+    // DRIVEN PATH LAYER (GPS Navigation)
+    // ============================================
+
+    /**
+     * Updates the driven-path GeoJSON source with the current drivenPathCoords.
+     * Called each time a new GPS point is recorded during GPS navigation.
+     */
+    function updateDrivenPathLayer() {
+        const source = map.getSource('driven-path');
+        if (!source) return;
+
+        if (drivenPathCoords.length < 2) {
+            source.setData({ type:'FeatureCollection', features:[] });
+            return;
+        }
+
+        source.setData({
+            type: 'FeatureCollection',
+            features: [{
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'LineString',
+                    coordinates: drivenPathCoords.slice()
+                }
+            }]
+        });
+    }
+
+    /**
+     * Clears the driven path layer data.
+     */
+    function clearDrivenPathLayer() {
+        const source = map.getSource('driven-path');
+        if (!source) return;
+        source.setData({ type:'FeatureCollection', features:[] });
+    }
+
+    // ============================================
     // NAVIGATION — GPS (REAL) & DEMO MODE
     // ============================================
     function startNavigation() {
@@ -3382,21 +3493,18 @@
 
         const route = state.routes[state.activeRouteIndex];
 
-        // Create vehicle marker at last known GPS or route start
-        if (vehicleMarker) vehicleMarker.remove();
-
-        const el = document.createElement('div');
-        el.className = 'vehicle-marker';
-        el.innerHTML = getVehicleSVG(state.vehicle, 48);
-
-        const startCoord = (state.lastGpsLat && state.lastGpsLng)
-            ? [state.lastGpsLng, state.lastGpsLat]
-            : route.geojson.geometry.coordinates[0];
-
-        vehicleMarker = new maplibregl.Marker({ element: el, anchor: 'center', rotationAlignment: 'map' })
-            .setLngLat(startCoord)
+        // In GPS mode: use a simple GPS dot marker (no spinning vehicle icon)
+        if (navGpsMarker) { navGpsMarker.remove(); navGpsMarker = null; }
+        const gpsEl = document.createElement('div');
+        gpsEl.className = 'gps-nav-marker';
+        navGpsMarker = new maplibregl.Marker({ element: gpsEl, anchor: 'center' })
+            .setLngLat([0, 0])
             .addTo(map);
-        vehicleMarker.getElement().style.display = 'none'; // hidden until GPS fix
+        navGpsMarker.getElement().style.display = 'none'; // hidden until GPS fix
+
+        // Reset driven path
+        drivenPathCoords = [];
+        clearDrivenPathLayer();
 
         // Show controls
         document.getElementById('speed-display').classList.add('visible');
@@ -3425,6 +3533,11 @@
             gpsEl.className = 'gps-marker heading-indicator';
             state.gpsMarker = new maplibregl.Marker({ element: gpsEl, anchor: 'center' }).setLngLat([0, 0]).addTo(map);
             state.gpsMarker.getElement().style.display = 'none';
+        }
+        // Bug #5 fix: Clear existing GPS watch before starting navigation watch
+        if (state.gpsWatchId !== null) {
+            navigator.geolocation.clearWatch(state.gpsWatchId);
+            state.gpsWatchId = null;
         }
         document.getElementById('gps-track-btn').style.display = 'flex';
         document.getElementById('gps-track-btn').classList.add('active-gps');
@@ -3467,28 +3580,34 @@
         state.lastGpsLng = longitude;
         state.lastGpsLat = latitude;
 
-        // Show vehicle marker on first fix
-        if (vehicleMarker && vehicleMarker.getElement().style.display === 'none') {
-            vehicleMarker.getElement().style.display = '';
-            vehicleMarker.setLngLat([longitude, latitude]);
+        // Show GPS nav marker on first fix
+        if (navGpsMarker && navGpsMarker.getElement().style.display === 'none') {
+            navGpsMarker.getElement().style.display = '';
+            navGpsMarker.setLngLat([longitude, latitude]);
             map.flyTo({ center: [longitude, latitude], zoom: 16, duration: 1000 });
         }
 
-        // Move vehicle to GPS position
-        if (vehicleMarker) {
-            vehicleMarker.setLngLat([longitude, latitude]);
+        // Move GPS nav marker to current position
+        if (navGpsMarker) {
+            navGpsMarker.setLngLat([longitude, latitude]);
+        }
 
-            // Calculate heading from GPS or from consecutive positions
-            let currentHeading = heading;
-            if (currentHeading === null || isNaN(currentHeading)) {
-                if (lastNavGpsLat !== null && (now - lastNavGpsTime) < 5000) {
-                    currentHeading = calcBearing(lastNavGpsLat, lastNavGpsLng, latitude, longitude);
-                }
+        // Calculate heading (used for camera follow & voice, but NOT for rotating a vehicle icon)
+        let currentHeading = heading;
+        if (currentHeading === null || isNaN(currentHeading)) {
+            if (lastNavGpsLat !== null && (now - lastNavGpsTime) < 5000) {
+                currentHeading = calcBearing(lastNavGpsLat, lastNavGpsLng, latitude, longitude);
             }
-            if (currentHeading !== null && !isNaN(currentHeading)) {
-                state.lastGpsHeading = currentHeading;
-                vehicleMarker.setRotation(currentHeading);
-            }
+        }
+        if (currentHeading !== null && !isNaN(currentHeading)) {
+            state.lastGpsHeading = currentHeading;
+        }
+
+        // Record driven path (for GPS navigation only)
+        if (drivenPathCoords.length === 0 ||
+            haversine(drivenPathCoords[drivenPathCoords.length-1][1], drivenPathCoords[drivenPathCoords.length-1][0], latitude, longitude) > 3) {
+            drivenPathCoords.push([longitude, latitude]);
+            updateDrivenPathLayer();
         }
 
         // Calculate speed from GPS or consecutive positions
@@ -3655,6 +3774,16 @@
             vehicleMarker.remove();
             vehicleMarker = null;
         }
+
+        // Remove GPS nav marker (used in GPS navigation mode)
+        if (navGpsMarker) {
+            navGpsMarker.remove();
+            navGpsMarker = null;
+        }
+
+        // Clear driven path
+        drivenPathCoords = [];
+        clearDrivenPathLayer();
 
         // Reset map view
         map.easeTo({ pitch:0, bearing:0, duration:800 });
@@ -3918,7 +4047,13 @@
         let routeBearingAtNearest = 0;
         let nearestIdx = 0;
 
-        for (let i = 0; i < coords.length - 1; i++) {
+        // Bug #10 fix: Use sliding window optimization for performance on long routes
+        const lastIdx = state._lastNearestIdx || 0;
+        const window = 500;
+        const searchStart = Math.max(0, lastIdx - window);
+        const searchEnd = Math.min(coords.length - 1, lastIdx + window);
+
+        for (let i = searchStart; i < searchEnd; i++) {
             const lat1 = coords[i][1], lon1 = coords[i][0];
             const lat2 = coords[i+1][1], lon2 = coords[i+1][0];
 
@@ -3949,6 +4084,8 @@
                 );
             }
         }
+        // Bug #10 fix: Store last nearest index for next search window
+        state._lastNearestIdx = nearestIdx;
         return { dist: minDist, routeBearing: routeBearingAtNearest, nearestIdx };
     }
 
@@ -4044,6 +4181,8 @@
         state.darkMode = !state.darkMode;
         document.documentElement.classList.toggle('dark', state.darkMode);
         document.documentElement.classList.toggle('light', !state.darkMode);
+        // Bug #9 fix: Persist dark mode preference to localStorage
+        localStorage.setItem('cargonavi-dark', state.darkMode);
 
         const icon = document.getElementById('theme-icon');
         icon.className = state.darkMode ? 'fas fa-sun' : 'fas fa-moon';
@@ -4059,6 +4198,8 @@
         state.waypoints = [];
         state.routes = [];
         state.activeRouteIndex = -1;
+        // Bug #10 fix: Reset nearest index cache on route clear
+        state._lastNearestIdx = 0;
 
         // Clear route layers
         for (let i = 0; i < 3; i++) {
@@ -4071,7 +4212,8 @@
         document.getElementById('end-input').value = '';
         document.getElementById('route-info-sidebar').style.display = 'none';
         document.getElementById('alt-panel').classList.remove('visible');
-        document.getElementById('view-controls').style.display = 'none';
+        // Bug #14 fix: Remove inline style to avoid specificity conflict with CSS
+        document.getElementById('view-controls').style.removeProperty('display');
 
         map.easeTo({ pitch:0, bearing:0, duration:500 });
 
@@ -4281,6 +4423,10 @@
 
     function showToast(message, type='info') {
         const container = document.getElementById('toast-container');
+        // Bug #12 fix: Limit toast count to prevent viewport overflow
+        while (container.children.length >= 3) {
+            container.firstChild.remove();
+        }
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.textContent = message;
@@ -4589,6 +4735,18 @@ ${trackpoints}        </TrackSegment>
     // ============================================
     // INITIALIZE
     // ============================================
+    // Bug #9 fix: Restore saved preferences before init
+    if (localStorage.getItem('cargonavi-dark') === 'true') {
+        state.darkMode = true;
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.className = 'fas fa-sun';
+    }
+    if (localStorage.getItem('cargonavi-lang') === 'de') {
+        i18n.lang = 'de';
+    }
+
     VoiceNav.init();
     initMap();
     </script>
