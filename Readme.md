@@ -54,7 +54,7 @@ CargoNavi ist eine **Progressive Web App**. Du kannst sie ohne App Store direkt 
 * **Lautstärke-Regler:** Slider (0–100%) zum Einstellen der Sprachlautstärke.
 * **Sprechtempo:** Wählbare Geschwindigkeit: 0.8x, 1x, 1.2x, 1.5x.
 * **Mehrsprachig:** Sprachausgabe wechselt automatisch zwischen Deutsch und Englisch.
-* **Kein Backend:** Nutzt die Web Speech API des Browsers — funktioniert komplett offline.
+* **Kein Backend:** Nutzt die Web Speech API des Browsers.
 * **Ein-/Ausschaltbar:** Schalter in der Sidebar zum Deaktivieren der Sprachausgabe.
 
 ### ⚠️ Routen-Überwachung (NEU)
