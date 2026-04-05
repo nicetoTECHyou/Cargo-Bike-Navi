@@ -77,7 +77,6 @@ Wähle dein passendes Profil für präzise Ankunftszeiten (1–200 km/h einstell
 * **POI-Liste:** Sortierte Übersicht der nächsten POIs mit Entfernung und Detail-Infos.
 
 ### 🌍 System & UI
-* **Offline-Ready:** Dank Service Worker & Offline-Cache (inklusive Fahrzeugbilder).
 * **Dark Mode:** Helles und dunkles Theme per Klick umschaltbar.
 * **Kartenstile:** Satellit, Topographisch, Straßenkarte & Dunkle Karte.
 * **Ansichten:** Folgemodus (hinter dem Fahrzeug) & Drohnenansicht (3D rotierend).
